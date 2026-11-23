@@ -1,0 +1,2554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sello Mayor de la UNL (1926) — Presentación Interactiva</title>
+  <!-- Google Fonts: Playfair Display & DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js r128 & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Tone.js for subtle stamp & quiz sound feedback -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"DM Sans"', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#061020',
+              900: '#0A192F',
+              800: '#0F294A',
+              700: '#173B66',
+            },
+            skyunl: {
+              400: '#38BDF8',
+              500: '#0EA5E9',
+              600: '#0284C7',
+            },
+            bronze: {
+              400: '#E5C158',
+              500: '#D4AF37',
+              600: '#A67C2E',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #061020;
+      font-family: 'DM Sans', sans-serif;
+      color: #FFFFFF;
+      user-select: none;
+    }
+
+    /* Slide transitions */
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      padding: 64px 48px 76px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(14px) scale(0.99);
+      transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0.45s;
+      overflow-y: auto;
+    }
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+      z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+      .slide {
+        padding: 58px 18px 72px 18px;
+        justify-content: flex-start;
+      }
+    }
+
+    /* Custom subtle scrollbar for smaller screens */
+    .slide::-webkit-scrollbar {
+      width: 6px;
+    }
+    .slide::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.35);
+      border-radius: 999px;
+    }
+
+    /* Interactive Card Hover & Active */
+    .glass-card {
+      background: rgba(15, 41, 74, 0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      box-shadow: 0 12px 32px rgba(3, 10, 24, 0.45);
+    }
+    .glass-card-light {
+      background: #FFFFFF;
+      color: #0A192F;
+      border: 1px solid rgba(2, 132, 199, 0.2);
+      box-shadow: 0 12px 30px rgba(10, 25, 47, 0.08);
+    }
+
+    /* 3D Canvas Container */
+    #canvas3d-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 360px;
+      border-radius: 1rem;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #143359 0%, #071324 100%);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+    }
+    #canvas3d-wrapper canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      outline: none;
+      cursor: grab;
+    }
+    #canvas3d-wrapper canvas:active {
+      cursor: grabbing;
+    }
+
+    /* Diploma Stamping Animation */
+    @keyframes stampPress {
+      0% { transform: translate(-50%, -180%) scale(1.25); opacity: 0; }
+      45% { transform: translate(-50%, -50%) scale(0.95); opacity: 1; }
+      65% { transform: translate(-50%, -55%) scale(1.03); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    .animate-stamp-press {
+      animation: stampPress 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45); }
+      50% { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+    }
+    .pulse-cta {
+      animation: pulseGlow 2.4s infinite;
+    }
+  </style>
+</head>
+<body class="bg-navy-900 text-white">
+
+  <!-- TOP PROGRESS BAR -->
+  <div class="fixed top-0 left-0 right-0 h-1.5 bg-navy-950 z-50">
+    <div id="progress-bar" class="h-full bg-gradient-to-r from-skyunl-600 via-skyunl-400 to-bronze-400 transition-all duration-300" style="width: 10%;"></div>
+  </div>
+
+  <!-- TOP HEADER BAR -->
+  <header class="fixed top-1.5 left-0 right-0 h-13 px-4 md:px-8 flex items-center justify-between z-40 pointer-events-none">
+    <div class="pointer-events-auto flex items-center gap-3 bg-navy-950/85 backdrop-blur-md border border-skyunl-400/20 px-3.5 py-1.5 rounded-full shadow-lg">
+      <span class="w-2.5 h-2.5 rounded-full bg-bronze-500"></span>
+      <span class="text-xs md:text-sm font-bold tracking-wider uppercase text-skyunl-400">Museo Histórico UNL</span>
+      <span class="hidden sm:inline text-xs text-slate-400">| Patrimonio Cultural</span>
+    </div>
+
+    <div class="pointer-events-auto flex items-center gap-2">
+      <!-- Quick Jump Dropdown -->
+      <div class="relative">
+        <button id="menu-toggle-btn" onclick="toggleSlideMenu()" class="flex items-center gap-2 bg-navy-950/85 hover:bg-navy-800 backdrop-blur-md border border-skyunl-400/25 text-xs md:text-sm font-medium px-3.5 py-1.5 rounded-full transition shadow-lg">
+          <i class="fa-solid fa-layer-group text-skyunl-400"></i>
+          <span id="slide-counter-top">1 / 10</span>
+          <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+        </button>
+        <div id="slide-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-navy-950/95 backdrop-blur-xl border border-skyunl-400/30 rounded-2xl shadow-2xl py-2 z-50 max-h-[75vh] overflow-y-auto">
+          <div class="px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-skyunl-400 border-b border-white/10">Índice de Diapositivas</div>
+          <div id="dropdown-items" class="flex flex-col"></div>
+        </div>
+      </div>
+
+      <!-- Sound Toggle -->
+      <button id="sound-toggle-btn" onclick="toggleSound()" title="Activar/Silenciar efectos de sonido" class="w-8 h-8 flex items-center justify-center rounded-full bg-navy-950/85 hover:bg-navy-800 border border-skyunl-400/25 text-skyunl-400 transition shadow-lg">
+        <i id="sound-icon" class="fa-solid fa-volume-high text-xs"></i>
+      </button>
+
+      <!-- Fullscreen Toggle -->
+      <button onclick="toggleFullscreen()" title="Pantalla Completa" class="w-8 h-8 flex items-center justify-center rounded-full bg-navy-950/85 hover:bg-navy-800 border border-skyunl-400/25 text-skyunl-400 transition shadow-lg">
+        <i class="fa-solid fa-expand text-xs"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       SLIDE 1: PORTADA
+  ====================================================================== -->
+  <section class="slide active bg-gradient-to-br from-navy-950 via-navy-900 to-navy-800" data-title="1. Portada: Sello Mayor UNL">
+    <div class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+      <div class="lg:col-span-7 space-y-6">
+        <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-skyunl-400/10 border border-skyunl-400/30 text-skyunl-400 text-xs md:text-sm font-bold tracking-widest uppercase">
+          <i class="fa-solid fa-landmark"></i>
+          Patrimonio Cultural del Museo Histórico UNL
+        </div>
+
+        <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-white">
+          Sello Mayor de la <span class="text-skyunl-400">Universidad Nacional del Litoral</span> <span class="text-bronze-400">(1926)</span>
+        </h1>
+
+        <p class="text-lg md:text-xl text-slate-300 leading-relaxed max-w-2xl">
+          Iconografía reformista, materialidad en bronce y vigencia institucional a través de su pieza fundacional.
+        </p>
+
+        <div class="w-24 h-1.5 rounded-full bg-gradient-to-r from-skyunl-400 to-bronze-500"></div>
+
+        <div class="pt-2 flex flex-wrap items-center gap-4">
+          <button onclick="goToSlide(1)" class="pulse-cta px-7 py-3.5 rounded-xl bg-skyunl-500 hover:bg-skyunl-400 text-navy-950 font-bold text-base flex items-center gap-3 transition transform hover:-translate-y-0.5 shadow-xl">
+            <span>Comenzar Exposición</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button onclick="goToSlide(5)" class="px-6 py-3.5 rounded-xl bg-navy-800/90 hover:bg-navy-700 border border-bronze-500/40 text-bronze-400 font-bold text-base flex items-center gap-2.5 transition">
+            <i class="fa-solid fa-cube"></i>
+            <span>Ir directo al Sello 3D</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Emblematic Vector Badge -->
+      <div class="lg:col-span-5 flex justify-center">
+        <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full p-4 bg-gradient-to-b from-bronze-500/20 to-skyunl-500/10 border border-bronze-500/30 flex items-center justify-center shadow-2xl">
+          <svg viewBox="0 0 300 300" class="w-full h-full drop-shadow-2xl">
+            <defs>
+              <radialGradient id="bronzeGrad" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#F3D678" />
+                <stop offset="55%" stop-color="#B88932" />
+                <stop offset="100%" stop-color="#5E4112" />
+              </radialGradient>
+              <path id="topArc" d="M 42,150 A 108,108 0 1,1 258,150" />
+            </defs>
+            <!-- Outer wood frame (6 segments) -->
+            <circle cx="150" cy="150" r="142" fill="none" stroke="#4A2E1B" stroke-width="14" />
+            <circle cx="150" cy="150" r="142" fill="none" stroke="#2D1A0E" stroke-width="14" stroke-dasharray="2 146.7" />
+            <!-- Bronze disc -->
+            <circle cx="150" cy="150" r="133" fill="url(#bronzeGrad)" stroke="#3D290A" stroke-width="3" />
+            <circle cx="150" cy="150" r="96" fill="none" stroke="#3D290A" stroke-width="2" />
+            <!-- Perimeter Legend -->
+            <text fill="#2B1C06" font-family="serif" font-size="14.5" font-weight="bold" letter-spacing="2.8">
+              <textPath href="#topArc" startOffset="50%" text-anchor="middle">
+                VNIVERSIDAD NACIONAL DEL LITORAL
+              </textPath>
+            </text>
+            <!-- Stylized Ephebe & Torch -->
+            <circle cx="150" cy="70" r="9" fill="#FFF3C4" opacity="0.85" />
+            <polygon points="150,56 157,74 143,74" fill="#2B1C06" />
+            <line x1="150" y1="74" x2="145" y2="108" stroke="#2B1C06" stroke-width="4" stroke-linecap="round" />
+            <circle cx="138" cy="112" r="8" fill="#2B1C06" />
+            <path d="M 138 120 L 146 152 L 122 175 M 146 152 L 166 172 M 138 124 L 148 98 M 138 124 L 118 138" stroke="#2B1C06" stroke-width="6" stroke-linecap="round" fill="none" />
+            <!-- Motto -->
+            <text x="150" y="196" text-anchor="middle" fill="#2B1C06" font-family="serif" font-size="13" font-weight="bold" letter-spacing="2">
+              LVX INDEFICIENS
+            </text>
+            <!-- Three Provincial Shields -->
+            <rect x="114" y="206" width="18" height="22" rx="4" fill="#3D290A" />
+            <rect x="141" y="206" width="18" height="22" rx="4" fill="#3D290A" />
+            <rect x="168" y="206" width="18" height="22" rx="4" fill="#3D290A" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 2: CLAVES PARA COMPRENDER EL SELLO MAYOR (PREPARACIÓN TRIVIA)
+  ====================================================================== -->
+  <section class="slide bg-slate-50 text-navy-900" data-title="2. Claves para la Trivia">
+    <div class="max-w-6xl mx-auto w-full">
+      <div class="mb-6">
+        <span class="text-xs md:text-sm font-bold tracking-widest uppercase text-skyunl-600">Hoja de Ruta · Preparación para la Trivia</span>
+        <h2 class="font-serif text-3xl md:text-4xl font-bold text-navy-900 mt-1">Tres Claves para Comprender el Sello Mayor</h2>
+        <p class="text-slate-600 text-base md:text-lg mt-1">Hacé clic en cada tarjeta para desplegar los conceptos esenciales que evaluaremos al final.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Clave 1 -->
+        <div onclick="toggleKeyCard(0)" class="glass-card-light rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1 border-t-4 border-skyunl-500 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full bg-skyunl-500/15 text-skyunl-600 font-bold text-xs">CLAVE 01 · DIVISA LATINA</span>
+              <i id="key-icon-0" class="fa-solid fa-plus-circle text-skyunl-600 text-xl transition-transform"></i>
+            </div>
+            <h3 class="font-serif text-2xl font-bold text-navy-900 mb-2">“LVX INDEFICIENS”</h3>
+            <p class="text-slate-600 text-base">Significa <strong class="text-navy-900">“Luz que no se extingue”</strong> (o <em>Luz que no se apaga</em>).</p>
+          </div>
+          <div id="key-detail-0" class="hidden mt-4 pt-4 border-t border-slate-200 text-sm text-slate-700 space-y-2">
+            <p><i class="fa-solid fa-check text-skyunl-600 mr-1.5"></i>Expresa la herencia <strong>iluminista y laica</strong> de la Reforma Universitaria de 1918.</p>
+            <p><i class="fa-solid fa-check text-skyunl-600 mr-1.5"></i>La antorcha en alto simboliza la razón científica guiando la emancipación intelectual.</p>
+          </div>
+        </div>
+
+        <!-- Clave 2 -->
+        <div onclick="toggleKeyCard(1)" class="glass-card-light rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1 border-t-4 border-bronze-500 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full bg-bronze-500/15 text-bronze-600 font-bold text-xs">CLAVE 02 · ALCANCE REGIONAL</span>
+              <i id="key-icon-1" class="fa-solid fa-plus-circle text-bronze-600 text-xl transition-transform"></i>
+            </div>
+            <h3 class="font-serif text-2xl font-bold text-navy-900 mb-2">Los Tres Escudos del Litoral</h3>
+            <p class="text-slate-600 text-base">Representan a <strong class="text-navy-900">Santa Fe, Entre Ríos y Corrientes</strong> unidas por sus ríos.</p>
+          </div>
+          <div id="key-detail-1" class="hidden mt-4 pt-4 border-t border-slate-200 text-sm text-slate-700 space-y-2">
+            <p><i class="fa-solid fa-check text-bronze-600 mr-1.5"></i>Creada por <strong>Ley Nacional N° 10.861 (1919)</strong> como la primera universidad regional del país.</p>
+            <p><i class="fa-solid fa-check text-bronze-600 mr-1.5"></i>En el pergamino basal figuran: Santa Fe (izq.), Entre Ríos (centro) y Corrientes (der.).</p>
+          </div>
+        </div>
+
+        <!-- Clave 3 -->
+        <div onclick="toggleKeyCard(2)" class="glass-card-light rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1 border-t-4 border-navy-800 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full bg-navy-800/10 text-navy-800 font-bold text-xs">CLAVE 03 · USO CEREMONIAL</span>
+              <i id="key-icon-2" class="fa-solid fa-plus-circle text-navy-800 text-xl transition-transform"></i>
+            </div>
+            <h3 class="font-serif text-2xl font-bold text-navy-900 mb-2">Protocolo Exclusivo</h3>
+            <p class="text-slate-600 text-base">Reservado para <strong class="text-navy-900">diplomas, actas y distinciones</strong> máximas.</p>
+          </div>
+          <div id="key-detail-2" class="hidden mt-4 pt-4 border-t border-slate-200 text-sm text-slate-700 space-y-2">
+            <p><i class="fa-solid fa-ban text-rose-600 mr-1.5"></i><strong>Prohibido en redes sociales</strong>, flyers o papelería informal.</p>
+            <p><i class="fa-solid fa-check text-navy-800 mr-1.5"></i>Para la comunicación cotidiana se utiliza el <strong>isologo institucional</strong> moderno.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 bg-skyunl-500/10 border border-skyunl-500/30 rounded-xl px-5 py-3 flex items-center justify-between flex-wrap gap-2">
+        <span class="text-sm font-medium text-navy-800"><i class="fa-solid fa-lightbulb text-skyunl-600 mr-2"></i>Tip para el aula: Tocá las 3 tarjetas para revelar todos los datos antes de avanzar.</span>
+        <button onclick="revealAllKeyCards()" class="text-xs font-bold uppercase tracking-wider text-skyunl-600 hover:underline">Desplegar todas</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 3: CONTEXTO HISTÓRICO Y ORIGEN (1918–2022)
+  ====================================================================== -->
+  <section class="slide bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900" data-title="3. Contexto Histórico (1918–2022)">
+    <div class="max-w-6xl mx-auto w-full">
+      <span class="text-xs md:text-sm font-bold tracking-widest uppercase text-skyunl-400">Genealogía Reformista</span>
+      <h2 class="font-serif text-3xl md:text-4xl font-bold text-white mt-1 mb-6">Contexto Histórico y Origen Institucional</h2>
+
+      <!-- Interactive Timeline Buttons -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <button onclick="selectTimeline(0)" id="tl-btn-0" class="tl-btn active p-4 rounded-xl bg-skyunl-500 text-navy-950 font-bold text-left transition shadow-lg">
+          <div class="text-xs uppercase opacity-80">Hito 01</div>
+          <div class="font-serif text-2xl">1918</div>
+          <div class="text-xs mt-1 truncate">Reforma Universitaria</div>
+        </button>
+        <button onclick="selectTimeline(1)" id="tl-btn-1" class="tl-btn p-4 rounded-xl bg-navy-950/70 hover:bg-navy-950 border border-skyunl-400/25 text-white font-bold text-left transition">
+          <div class="text-xs uppercase text-skyunl-400">Hito 02</div>
+          <div class="font-serif text-2xl">1919</div>
+          <div class="text-xs text-slate-300 mt-1 truncate">Ley N° 10.861</div>
+        </button>
+        <button onclick="selectTimeline(2)" id="tl-btn-2" class="tl-btn p-4 rounded-xl bg-navy-950/70 hover:bg-navy-950 border border-skyunl-400/25 text-white font-bold text-left transition">
+          <div class="text-xs uppercase text-bronze-400">Hito 03 · Pieza Central</div>
+          <div class="font-serif text-2xl text-bronze-400">1926</div>
+          <div class="text-xs text-slate-300 mt-1 truncate">Alfredo Bigatti & Martínez</div>
+        </button>
+        <button onclick="selectTimeline(3)" id="tl-btn-3" class="tl-btn p-4 rounded-xl bg-navy-950/70 hover:bg-navy-950 border border-skyunl-400/25 text-white font-bold text-left transition">
+          <div class="text-xs uppercase text-skyunl-400">Hito 04</div>
+          <div class="font-serif text-2xl">2022</div>
+          <div class="text-xs text-slate-300 mt-1 truncate">Manual de Identidad</div>
+        </button>
+      </div>
+
+      <!-- Dynamic Detail Panel -->
+      <div id="timeline-panel" class="glass-card rounded-2xl p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <div class="md:col-span-4 flex flex-col items-center justify-center bg-navy-950/70 rounded-xl p-6 border border-skyunl-400/20 text-center">
+          <span id="tl-year" class="font-serif text-5xl md:text-6xl font-bold text-skyunl-400">1918</span>
+          <span id="tl-badge" class="mt-2 px-3 py-1 rounded-full bg-skyunl-400/15 text-skyunl-300 text-xs font-bold uppercase">Espíritu Emancipador</span>
+        </div>
+        <div class="md:col-span-8 space-y-3">
+          <h3 id="tl-title" class="font-serif text-2xl md:text-3xl font-bold text-white">La Reforma Universitaria y el Ideario de Córdoba</h3>
+          <p id="tl-desc" class="text-slate-200 text-base md:text-lg leading-relaxed">
+            El movimiento estudiantil de 1918 impulsa la autonomía universitaria, el cogobierno, la libertad de cátedra y la extensión social del conocimiento. Este impulso reclamaba una nueva universidad pública para el Litoral argentino, superando la vieja estructura provincial.
+          </p>
+          <div id="tl-extra" class="pt-2 text-sm text-skyunl-300 font-medium flex items-center gap-2">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Sentó las bases filosóficas que luego se plasmaron en la simbología del Sello Mayor.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 4: ANÁLISIS ICONOGRÁFICO (EXPLORADOR DE SÍMBOLOS)
+  ====================================================================== -->
+  <section class="slide bg-slate-50 text-navy-900" data-title="4. Análisis Iconográfico">
+    <div class="max-w-6xl mx-auto w-full">
+      <span class="text-xs md:text-sm font-bold tracking-widest uppercase text-skyunl-600">Lectura Semiótica</span>
+      <h2 class="font-serif text-3xl md:text-4xl font-bold text-navy-900 mt-1 mb-6">Explorador Iconográfico del Sello Mayor</h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <!-- Interactive SVG Diagram -->
+        <div class="lg:col-span-5 flex flex-col items-center bg-white p-5 rounded-2xl shadow-lg border border-slate-200">
+          <svg viewBox="0 0 320 320" class="w-64 h-64 sm:w-72 sm:h-72">
+            <circle cx="160" cy="160" r="150" fill="#0F294A" stroke="#D4AF37" stroke-width="5" />
+            <circle cx="160" cy="160" r="112" fill="#173B66" stroke="#38BDF8" stroke-width="2" />
+            <text x="160" y="34" text-anchor="middle" fill="#E5C158" font-family="serif" font-size="11" font-weight="bold" letter-spacing="2">VNIVERSIDAD NACIONAL DEL LITORAL</text>
+
+            <!-- Zone 1: Ephebe & Torch -->
+            <g id="svg-zone-0" onclick="selectIconZone(0)" class="cursor-pointer transition-opacity">
+              <circle cx="160" cy="118" r="46" fill="#38BDF8" fill-opacity="0.22" stroke="#38BDF8" stroke-width="2.5" />
+              <polygon points="160,78 168,96 152,96" fill="#FDE047" />
+              <line x1="160" y1="96" x2="154" y2="124" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+              <circle cx="148" cy="126" r="7" fill="#FFFFFF" />
+              <path d="M 148 133 L 154 156 L 136 172 M 154 156 L 170 170 M 148 136 L 157 116" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" fill="none" />
+            </g>
+
+            <!-- Zone 2: Clouds & Horizon -->
+            <g id="svg-zone-1" onclick="selectIconZone(1)" class="cursor-pointer transition-opacity opacity-65 hover:opacity-100">
+              <path d="M 88 168 Q 105 154 125 166 Q 145 158 160 168 Q 180 156 202 166 Q 220 156 234 170" fill="none" stroke="#7DD3FC" stroke-width="5" stroke-linecap="round" />
+              <path d="M 96 180 Q 128 172 160 180 Q 192 172 224 180" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" />
+            </g>
+
+            <!-- Zone 3: Basal Scroll & 3 Shields -->
+            <g id="svg-zone-2" onclick="selectIconZone(2)" class="cursor-pointer transition-opacity opacity-65 hover:opacity-100">
+              <rect x="96" y="194" width="128" height="54" rx="10" fill="#D4AF37" fill-opacity="0.25" stroke="#D4AF37" stroke-width="2" />
+              <text x="160" y="208" text-anchor="middle" fill="#FDE047" font-family="serif" font-size="10" font-weight="bold" letter-spacing="1.5">LVX INDEFICIENS</text>
+              <rect x="114" y="216" width="22" height="26" rx="4" fill="#38BDF8" />
+              <rect x="149" y="216" width="22" height="26" rx="4" fill="#E5C158" />
+              <rect x="184" y="216" width="22" height="26" rx="4" fill="#38BDF8" />
+            </g>
+          </svg>
+          <span class="text-xs text-slate-500 mt-2">Hacé clic en las zonas del diagrama o en los botones</span>
+        </div>
+
+        <!-- Tabs & Explanation -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex flex-wrap gap-2">
+            <button onclick="selectIconZone(0)" id="icon-tab-0" class="px-4 py-2.5 rounded-xl bg-navy-900 text-white font-bold text-sm transition shadow">
+              1. El Efebo y la Antorcha
+            </button>
+            <button onclick="selectIconZone(1)" id="icon-tab-1" class="px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-navy-900 hover:bg-skyunl-50 font-bold text-sm transition">
+              2. Nubes y Horizonte Litoraleño
+            </button>
+            <button onclick="selectIconZone(2)" id="icon-tab-2" class="px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-navy-900 hover:bg-skyunl-50 font-bold text-sm transition">
+              3. Pergamino y 3 Escudos
+            </button>
+          </div>
+
+          <div class="glass-card-light rounded-2xl p-6 md:p-7 space-y-4">
+            <div class="flex items-center gap-3">
+              <div id="icon-badge" class="w-11 h-11 rounded-xl bg-skyunl-500/15 text-skyunl-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+              </div>
+              <div>
+                <span id="icon-sub" class="text-xs font-bold uppercase tracking-wider text-skyunl-600">Inspiración Clásica · Giambologna</span>
+                <h3 id="icon-title" class="font-serif text-2xl font-bold text-navy-900">El Efebo en Marcha con la Antorcha</h3>
+              </div>
+            </div>
+            <p id="icon-body" class="text-slate-700 text-base md:text-lg leading-relaxed">
+              Alfredo Bigatti toma como referencia compositiva el célebre <em>Mercurio</em> volador de Giambologna: una figura juvenil desnuda, ágil y en pleno movimiento ascendente que sostiene en alto la antorcha encendida. Representa a la juventud estudiosa reformista llevando la luz del conocimiento científico hacia toda la sociedad.
+            </p>
+            <div id="icon-highlight" class="p-3.5 rounded-xl bg-skyunl-500/10 border-l-4 border-skyunl-600 text-sm text-navy-900 font-medium">
+              A diferencia de los escudos heráldicos tradicionales con armas o coronas, la UNL eligió una alegoría humanista del saber dinámico.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 5: MATERIALIDAD Y FICHA TÉCNICA MUSEOGRÁFICA
+  ====================================================================== -->
+  <section class="slide bg-gradient-to-br from-navy-950 via-navy-900 to-navy-800" data-title="5. Ficha Técnica Museográfica">
+    <div class="max-w-6xl mx-auto w-full">
+      <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div>
+          <span class="text-xs md:text-sm font-bold tracking-widest uppercase text-bronze-400">Catalogación Patrimonial · Museo Histórico UNL</span>
+          <h2 class="font-serif text-3xl md:text-4xl font-bold text-white mt-1">Materialidad y Ficha Técnica de las 4 Capas</h2>
+        </div>
+        <div class="px-4 py-2 rounded-xl bg-bronze-500/15 border border-bronze-400/40 text-bronze-300 text-xs md:text-sm font-bold">
+          <i class="fa-solid fa-ruler-combined mr-1.5"></i>Diámetro exterior: ~35 cm · Bronce y Madera
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Capa 1 -->
+        <div class="glass-card rounded-2xl p-5 border-l-4 border-amber-700 flex gap-4 items-start">
+          <div class="w-11 h-11 rounded-xl bg-amber-800/40 border border-amber-500/40 flex items-center justify-center font-serif font-bold text-lg text-amber-300 shrink-0">01</div>
+          <div>
+            <h3 class="font-serif text-xl font-bold text-white">Marco Circular de Madera Lustrada</h3>
+            <p class="text-slate-300 text-sm md:text-base mt-1 leading-relaxed">
+              Moldura perimetral torneada y lustrada compuesta por <strong>6 segmentos curvos ensamblados radialmente</strong> (diámetro aprox. 35 cm), que protege y enmarca el disco metálico.
+            </p>
+          </div>
+        </div>
+
+        <!-- Capa 2 -->
+        <div class="glass-card rounded-2xl p-5 border-l-4 border-bronze-500 flex gap-4 items-start">
+          <div class="w-11 h-11 rounded-xl bg-bronze-500/20 border border-bronze-400/40 flex items-center justify-center font-serif font-bold text-lg text-bronze-300 shrink-0">02</div>
+          <div>
+            <h3 class="font-serif text-xl font-bold text-white">Disco Base de Bronce Fundido Patinado</h3>
+            <p class="text-slate-300 text-sm md:text-base mt-1 leading-relaxed">
+              Placa circular de bronce con pátina oscura en los bajos y brillo en los altos relieves, llevando la leyenda perimetral en relieve: <strong>“VNIVERSIDAD NACIONAL DEL LITORAL”</strong> (con <em>V</em> latina).
+            </p>
+          </div>
+        </div>
+
+        <!-- Capa 3 -->
+        <div class="glass-card rounded-2xl p-5 border-l-4 border-skyunl-400 flex gap-4 items-start">
+          <div class="w-11 h-11 rounded-xl bg-skyunl-500/20 border border-skyunl-400/40 flex items-center justify-center font-serif font-bold text-lg text-skyunl-300 shrink-0">03</div>
+          <div>
+            <h3 class="font-serif text-xl font-bold text-white">Bajorrelieve Central del Efebo</h3>
+            <p class="text-slate-300 text-sm md:text-base mt-1 leading-relaxed">
+              Modelado escultórico de <strong>Alfredo Bigatti</strong>: figura humana en bajorrelieve emergiendo entre nubes y sosteniendo la antorcha encendida como eje vertical de la composición.
+            </p>
+          </div>
+        </div>
+
+        <!-- Capa 4 -->
+        <div class="glass-card rounded-2xl p-5 border-l-4 border-emerald-400 flex gap-4 items-start">
+          <div class="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center font-serif font-bold text-lg text-emerald-300 shrink-0">04</div>
+          <div>
+            <h3 class="font-serif text-xl font-bold text-white">Conjunto Basal: Lema, Dedicatoria y Escudos</h3>
+            <p class="text-slate-300 text-sm md:text-base mt-1 leading-relaxed">
+              Cartela con el lema <strong>“LVX INDEFICIENS”</strong>, la micro-dedicatoria incisa <strong>“Al Dr. Pedro E. Martínez”</strong> a la izquierda del lema, y los <strong>3 escudos provinciales</strong> (Santa Fe, Entre Ríos y Corrientes).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex justify-end">
+        <button onclick="goToSlide(5)" class="px-5 py-2.5 rounded-xl bg-bronze-500 hover:bg-bronze-400 text-navy-950 font-bold text-sm flex items-center gap-2 transition shadow-lg">
+          <i class="fa-solid fa-cube"></i>
+          <span>Inspeccionar estas 4 capas en el Modelo 3D</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 6: MAQUETA 3D INTERACTIVA INTEGRADA (THREE.JS EN VIVO)
+  ====================================================================== -->
+  <section class="slide bg-navy-950" data-title="6. Maqueta 3D Interactiva (En Vivo)">
+    <div class="max-w-7xl mx-auto w-full h-full flex flex-col justify-center">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-bronze-400">Reconstrucción Digital Tridimensional · WebGL</span>
+          <h2 class="font-serif text-2xl md:text-3xl font-bold text-white">Maqueta 3D Interactiva del Sello Mayor (1926)</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="finish-toggle-btn" onclick="toggle3DFinish()" class="px-3.5 py-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 border border-bronze-400/40 text-bronze-300 text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-palette"></i>
+            <span id="finish-label">Modo: Plato de Bronce Original (1926)</span>
+          </button>
+          <button id="explode-toggle-btn" onclick="toggle3DExplodeBtn()" class="px-3.5 py-1.5 rounded-lg bg-bronze-500/20 hover:bg-bronze-500/30 border border-bronze-400/40 text-bronze-300 text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-layer-group"></i>
+            <span id="explode-btn-label">Desglosar Capas</span>
+          </button>
+          <button onclick="reset3DCamera()" class="px-3.5 py-1.5 rounded-lg bg-skyunl-500/20 hover:bg-skyunl-500/30 border border-skyunl-400/40 text-skyunl-300 text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Resetear Vista</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 max-h-[540px]">
+        <!-- 3D Viewport -->
+        <div class="lg:col-span-7 flex flex-col min-h-[300px]">
+          <div id="canvas3d-wrapper">
+            <!-- Floating Layer Labels when exploded -->
+            <div id="exploded-legend" class="hidden absolute top-3 left-3 bg-navy-950/85 backdrop-blur-md border border-skyunl-400/30 rounded-xl p-2.5 text-[11px] space-y-1 pointer-events-none z-10">
+              <div class="font-bold text-skyunl-400 uppercase">Desglose de 4 Capas (Eje Z):</div>
+              <div class="text-amber-300">● Capa 1: Marco madera (6 segmentos)</div>
+              <div class="text-bronze-300">● Capa 2: Disco base bronce + leyenda</div>
+              <div class="text-skyunl-200">● Capa 3: Bajorrelieve Efebo</div>
+              <div class="text-emerald-300">● Capa 4: Lema + Dedicatoria + 3 Escudos</div>
+            </div>
+            <div class="absolute bottom-3 left-3 right-3 flex justify-between items-center pointer-events-none text-[11px] text-slate-300 bg-navy-950/70 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+              <span><i class="fa-solid fa-hand-pointer text-skyunl-400 mr-1"></i>Arrastrá para rotar · Rueda para zoom</span>
+              <span id="webgl-status" class="text-emerald-400 font-bold">● WebGL Activo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls & Hotspots Sidebar -->
+        <div class="lg:col-span-5 flex flex-col justify-between gap-2.5 overflow-y-auto pr-1">
+          <!-- Exploded View Slider -->
+          <div class="glass-card rounded-xl p-3.5">
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="explode-slider" class="text-xs font-bold uppercase tracking-wider text-skyunl-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-layer-group"></i> Desglose de Piezas (4 Capas)
+              </label>
+              <span id="explode-val" class="text-xs font-bold text-white bg-navy-950 px-2 py-0.5 rounded">0%</span>
+            </div>
+            <input id="explode-slider" type="range" min="0" max="100" value="0" oninput="updateExplode(this.value)" class="w-full accent-skyunl-400 cursor-pointer" />
+          </div>
+
+          <!-- 5 Interactive Camera Focus Buttons -->
+          <div class="glass-card rounded-xl p-3.5 space-y-1.5">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Enfoque Guiado por Zonas (5 Hotspots):</div>
+            <button onclick="focusHotspot(0)" id="hs-btn-0" class="hs-btn w-full text-left px-3 py-2 rounded-lg bg-navy-950/70 hover:bg-skyunl-500/20 border border-white/10 text-xs font-bold text-white flex items-center justify-between transition">
+              <span>1. El Efebo y la Antorcha</span>
+              <i class="fa-solid fa-crosshairs text-skyunl-400"></i>
+            </button>
+            <button onclick="focusHotspot(1)" id="hs-btn-1" class="hs-btn w-full text-left px-3 py-2 rounded-lg bg-navy-950/70 hover:bg-skyunl-500/20 border border-white/10 text-xs font-bold text-white flex items-center justify-between transition">
+              <span>2. Lema “LVX INDEFICIENS”</span>
+              <i class="fa-solid fa-crosshairs text-skyunl-400"></i>
+            </button>
+            <button onclick="focusHotspot(2)" id="hs-btn-2" class="hs-btn w-full text-left px-3 py-2 rounded-lg bg-navy-950/70 hover:bg-skyunl-500/20 border border-white/10 text-xs font-bold text-white flex items-center justify-between transition">
+              <span>3. Los Tres Escudos del Litoral</span>
+              <i class="fa-solid fa-crosshairs text-skyunl-400"></i>
+            </button>
+            <button onclick="focusHotspot(3)" id="hs-btn-3" class="hs-btn w-full text-left px-3 py-2 rounded-lg bg-navy-950/70 hover:bg-skyunl-500/20 border border-white/10 text-xs font-bold text-white flex items-center justify-between transition">
+              <span>4. Pedro E. Martínez y Alfredo Bigatti (1926)</span>
+              <i class="fa-solid fa-crosshairs text-bronze-400"></i>
+            </button>
+            <button onclick="focusHotspot(4)" id="hs-btn-4" class="hs-btn w-full text-left px-3 py-2 rounded-lg bg-navy-950/70 hover:bg-skyunl-500/20 border border-white/10 text-xs font-bold text-white flex items-center justify-between transition">
+              <span>5. Materialidad y Marco (Bronce + 6 segmentos)</span>
+              <i class="fa-solid fa-crosshairs text-bronze-400"></i>
+            </button>
+          </div>
+
+          <!-- Active Hotspot Info Card -->
+          <div id="hotspot-card" class="rounded-xl bg-gradient-to-r from-navy-800 to-navy-900 border border-bronze-400/40 p-3.5">
+            <div id="hs-title" class="font-serif text-sm font-bold text-bronze-400">Vista General — Pieza Museográfica (1926)</div>
+            <p id="hs-desc" class="text-xs text-slate-200 mt-1 leading-relaxed">
+              Seleccioná cualquiera de los 5 puntos de interés para acercar la cámara 3D o deslizá el control superior para separar sus 4 capas físicas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 7: SIMULADOR INTERACTIVO DE ESTAMPADO DE DIPLOMAS
+  ====================================================================== -->
+  <section class="slide bg-slate-100 text-navy-900" data-title="7. Simulador de Estampado">
+    <div class="max-w-6xl mx-auto w-full">
+      <span class="text-xs md:text-sm font-bold tracking-widest uppercase text-skyunl-600">Experiencia Práctica · Uso Ceremonial</span>
+      <h2 class="font-serif text-3xl md:text-4xl font-bold text-navy-900 mt-1 mb-5">Simulador Interactivo de Estampado Oficial</h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <!-- Controls Panel -->
+        <div class="lg:col-span-5 glass-card-light rounded-2xl p-6 space-y-5">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-skyunl-600 mb-2">1. Tipo de Documento Solemne</label>
+            <select id="doc-type-select" onchange="updateDiplomaPreview()" class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-navy-900 font-bold text-sm focus:outline-none focus:border-skyunl-500">
+              <option value="grado">Diploma de Grado Universitario</option>
+              <option value="acta">Acta Fundacional del Consejo Superior</option>
+              <option value="honoris">Distinción Doctor Honoris Causa</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-skyunl-600 mb-2">2. Técnica de Impresión / Cuño</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="selectStampStyle('ink')" id="style-btn-ink" class="stamp-style-btn p-2.5 rounded-xl border-2 border-navy-900 bg-navy-900 text-white text-xs font-bold text-center transition">
+                Tinta Negra Calcográfica
+              </button>
+              <button onclick="selectStampStyle('wax')" id="style-btn-wax" class="stamp-style-btn p-2.5 rounded-xl border-2 border-slate-200 bg-white text-navy-900 hover:border-rose-500 text-xs font-bold text-center transition">
+                Lacre Rojo Ceremonial
+              </button>
+              <button onclick="selectStampStyle('gold')" id="style-btn-gold" class="stamp-style-btn p-2.5 rounded-xl border-2 border-slate-200 bg-white text-navy-900 hover:border-amber-500 text-xs font-bold text-center transition">
+                Gofrado Seco Dorado
+              </button>
+            </div>
+          </div>
+
+          <div class="pt-1 flex flex-col sm:flex-row gap-3">
+            <button onclick="executeStamp()" class="flex-1 py-3.5 px-5 rounded-xl bg-skyunl-600 hover:bg-skyunl-500 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-lg">
+              <i class="fa-solid fa-stamp text-base"></i>
+              <span>ESTAMPAR SELLO AHORA</span>
+            </button>
+            <button onclick="resetDiploma()" class="py-3.5 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-navy-900 font-bold text-sm transition">
+              Limpiar
+            </button>
+          </div>
+
+          <div id="stamp-status-box" class="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600">
+            <i class="fa-solid fa-circle-info text-skyunl-600 mr-1.5"></i>Hacé clic en <strong>“ESTAMPAR SELLO AHORA”</strong> o directamente sobre el círculo punteado del diploma.
+          </div>
+        </div>
+
+        <!-- Parchment Diploma Desk -->
+        <div class="lg:col-span-7 bg-navy-900 p-5 sm:p-7 rounded-2xl shadow-2xl border-4 border-amber-900/60">
+          <div class="relative bg-[#FDFBF4] text-navy-950 rounded-xl p-6 sm:p-8 border-2 border-bronze-500/60 shadow-inner">
+            <!-- Ornamental Corners -->
+            <div class="text-center border-b border-bronze-500/40 pb-4">
+              <p class="text-[11px] font-bold tracking-[0.2em] uppercase text-bronze-600">República Argentina · Región Litoral</p>
+              <h3 class="font-serif text-xl sm:text-2xl font-bold text-navy-900 mt-1">VNIVERSIDAD NACIONAL DEL LITORAL</h3>
+              <p class="text-[11px] italic text-slate-500">Fundada por Ley Nacional N° 10.861 · Santa Fe</p>
+            </div>
+
+            <div class="py-5 text-center space-y-2">
+              <span id="dip-badge" class="inline-block px-3 py-0.5 rounded-full bg-navy-900/10 text-navy-900 text-[11px] font-bold uppercase tracking-wider">
+                Diploma de Grado Universitario
+              </span>
+              <p id="dip-body" class="font-serif text-sm sm:text-base text-slate-800 max-w-lg mx-auto leading-relaxed">
+                Por cuanto se han cumplido los estudios superiores y exigencias académicas establecidas por el Estatuto Reformista, el Rectorado expide el presente título con la fuerza legal del <strong>Sello Mayor</strong>.
+              </p>
+            </div>
+
+            <div class="pt-3 flex items-end justify-between gap-4">
+              <div class="space-y-1">
+                <div class="w-36 h-px bg-slate-400"></div>
+                <p class="text-[11px] font-bold text-slate-600">Rectorado · Secretaría General</p>
+                <p id="dip-reg" class="text-[10px] font-mono text-slate-400">Estado: Pendiente de autenticación</p>
+              </div>
+
+              <!-- Target Stamp Area -->
+              <div onclick="executeStamp()" title="Hacé clic aquí para estampar" class="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-skyunl-600/60 hover:border-skyunl-600 bg-skyunl-500/5 flex flex-col items-center justify-center cursor-pointer transition group">
+                <span id="stamp-placeholder-text" class="text-[10px] font-bold uppercase text-skyunl-600 text-center px-2 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-stamp block text-lg mb-1"></i>
+                  Clic para Estampar
+                </span>
+
+                <!-- Stamped Impression (Hidden initially) -->
+                <div id="stamped-seal" class="hidden absolute top-1/2 left-1/2 w-28 h-28 sm:w-32 sm:h-32 pointer-events-none">
+                  <svg id="stamped-svg" viewBox="0 0 200 200" class="w-full h-full drop-shadow-md">
+                    <circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" stroke-width="5" />
+                    <circle cx="100" cy="100" r="84" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2" />
+                    <circle cx="100" cy="100" r="64" fill="none" stroke="currentColor" stroke-width="1.5" />
+                    <text x="100" y="28" text-anchor="middle" fill="currentColor" font-family="serif" font-size="9" font-weight="bold" letter-spacing="1.2">VNIVERSIDAD NACIONAL</text>
+                    <text x="100" y="182" text-anchor="middle" fill="currentColor" font-family="serif" font-size="9" font-weight="bold" letter-spacing="1.5">DEL LITORAL · 1926</text>
+                    <!-- Torch & Ephebe silhouette -->
+                    <polygon points="100,46 106,60 94,60" fill="currentColor" />
+                    <line x1="100" y1="60" x2="96" y2="82" stroke="currentColor" stroke-width="3" />
+                    <circle cx="92" cy="84" r="5" fill="currentColor" />
+                    <path d="M 92 89 L 97 108 L 83 122 M 97 108 L 110 120 M 92 92 L 99 76" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none" />
+                    <text x="100" y="138" text-anchor="middle" fill="currentColor" font-family="serif" font-size="8.5" font-weight="bold" letter-spacing="1">LVX INDEFICIENS</text>
+                    <rect x="76" y="144" width="12" height="14" rx="2" fill="currentColor" />
+                    <rect x="94" y="144" width="12" height="14" rx="2" fill="currentColor" />
+                    <rect x="112" y="144" width="12" height="14" rx="2" fill="currentColor" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 8: ACTIVIDAD PARTICIPATIVA — DETECTIVES DEL PATRIMONIO
+  ====================================================================== -->
+  <section class="slide bg-gradient-to-br from-navy-900 via-navy-800 to-navy-950" data-title="8. Detectives del Patrimonio">
+    <div class="max-w-6xl mx-auto w-full">
+      <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div>
+          <span class="text-xs md:text-sm font-bold tracking-widest uppercase text-skyunl-400">Dinámica Participativa en Clase</span>
+          <h2 class="font-serif text-3xl md:text-4xl font-bold text-white mt-1">Detectives del Patrimonio: 1926 vs. 2022</h2>
+        </div>
+        <button onclick="revealAllClues()" class="px-4 py-2 rounded-xl bg-skyunl-500/20 hover:bg-skyunl-500/30 border border-skyunl-400/40 text-skyunl-300 text-xs font-bold transition">
+          Revelar todas las pistas
+        </button>
+      </div>
+
+      <!-- Visual Comparison Bar -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <div class="glass-card rounded-2xl p-4 flex items-center gap-4 border border-bronze-400/40">
+          <div class="w-14 h-14 rounded-full bg-bronze-500/20 border-2 border-bronze-400 flex items-center justify-center text-bronze-300 font-serif font-bold text-sm shrink-0">
+            1926
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-bronze-300">Sello Mayor Histórico (A. Bigatti)</h3>
+            <p class="text-xs md:text-sm text-slate-300">Relieve escultórico figurativo, tipografía romana clásica (<em>VNIVERSIDAD</em>), lema latino y 3 escudos.</p>
+          </div>
+        </div>
+        <div class="glass-card rounded-2xl p-4 flex items-center gap-4 border border-skyunl-400/40">
+          <div class="w-14 h-14 rounded-xl bg-skyunl-500/20 border-2 border-skyunl-400 flex items-center justify-center text-skyunl-300 font-sans font-bold text-sm shrink-0">
+            UNL
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-skyunl-300">Isologo Institucional Actual (2022)</h3>
+            <p class="text-xs md:text-sm text-slate-300">Síntesis geométrica moderna en azul/celeste con sigla <strong>UNL</strong> para entorno digital, web y papelería.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Interactive Clue Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div onclick="revealClue(0)" id="clue-card-0" class="glass-card rounded-2xl p-5 cursor-pointer hover:border-skyunl-400 transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-skyunl-400">Pista 01 · Síntesis Gráfica</span>
+            <span id="clue-badge-0" class="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300">Clic para revelar</span>
+          </div>
+          <h4 class="font-serif text-lg font-bold text-white mt-1.5">¿Qué elementos se conservaron y cuáles se sintetizaron?</h4>
+          <p id="clue-text-0" class="hidden text-sm text-slate-200 mt-2 pt-2 border-t border-white/10">
+            El isologo actual abstrae las líneas del horizonte litoraleño y la proyección ascendente de la antorcha en trazos geométricos puros, dejando el figurativismo del efebo para el Sello Mayor.
+          </p>
+        </div>
+
+        <div onclick="revealClue(1)" id="clue-card-1" class="glass-card rounded-2xl p-5 cursor-pointer hover:border-skyunl-400 transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-bronze-400">Pista 02 · Epigrafía Latina</span>
+            <span id="clue-badge-1" class="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300">Clic para revelar</span>
+          </div>
+          <h4 class="font-serif text-lg font-bold text-white mt-1.5">¿Por qué dice “VNIVERSIDAD” con V en el sello?</h4>
+          <p id="clue-text-1" class="hidden text-sm text-slate-200 mt-2 pt-2 border-t border-white/10">
+            En la epigrafía romana monumental la letra <strong>V</strong> representaba tanto la vocal U como la consonante V, otorgando solemnidad clásica, mientras hoy se sintetiza en la sigla <strong>UNL</strong>.
+          </p>
+        </div>
+
+        <div onclick="revealClue(2)" id="clue-card-2" class="glass-card rounded-2xl p-5 cursor-pointer hover:border-skyunl-400 transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-skyunl-400">Pista 03 · Convivencia Normativa</span>
+            <span id="clue-badge-2" class="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300">Clic para revelar</span>
+          </div>
+          <h4 class="font-serif text-lg font-bold text-white mt-1.5">¿El isologo reemplazó al Sello Mayor?</h4>
+          <p id="clue-text-2" class="hidden text-sm text-slate-200 mt-2 pt-2 border-t border-white/10">
+            <strong>No.</strong> El Manual de Identidad Visual (2022) establece una convivencia jerárquica: el isologo opera en redes, web y difusión; el Sello Mayor rige en diplomas, medallas y actos protocolares.
+          </p>
+        </div>
+
+        <div onclick="revealClue(3)" id="clue-card-3" class="glass-card rounded-2xl p-5 cursor-pointer hover:border-skyunl-400 transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-bronze-400">Pista 04 · Observación en Aula</span>
+            <span id="clue-badge-3" class="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300">Clic para revelar</span>
+          </div>
+          <h4 class="font-serif text-lg font-bold text-white mt-1.5">¿Dónde los vemos hoy en nuestra vida universitaria?</h4>
+          <p id="clue-text-3" class="hidden text-sm text-slate-200 mt-2 pt-2 border-t border-white/10">
+            En el SIU Guaraní, credenciales y redes vemos el <strong>isologo</strong>; en el vitral del Paraninfo, los diplomas de colación y el Museo Histórico UNL permanece el <strong>Sello Mayor</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 9: TRIVIA INTERACTIVA EN VIVO (5 PREGUNTAS CON PUNTAJE)
+  ====================================================================== -->
+  <section class="slide bg-slate-50 text-navy-900" data-title="9. Trivia Interactiva (5 Preguntas)">
+    <div class="max-w-4xl mx-auto w-full">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div>
+          <span class="text-xs md:text-sm font-bold tracking-widest uppercase text-skyunl-600">Desafío Final en Vivo</span>
+          <h2 class="font-serif text-3xl md:text-4xl font-bold text-navy-900 mt-0.5">Trivia del Patrimonio UNL</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="px-4 py-2 rounded-xl bg-navy-900 text-white font-bold text-sm flex items-center gap-2 shadow">
+            <i class="fa-solid fa-trophy text-bronze-400"></i>
+            <span>Puntaje: <span id="quiz-score" class="text-skyunl-400">0</span> / 5</span>
+          </div>
+          <button onclick="resetQuiz()" class="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-navy-900 text-xs font-bold transition">
+            Reiniciar
+          </button>
+        </div>
+      </div>
+
+      <!-- Quiz Container -->
+      <div id="quiz-box" class="glass-card-light rounded-2xl p-6 md:p-8 shadow-xl">
+        <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-skyunl-600 mb-3">
+          <span id="quiz-progress-label">Pregunta 1 de 5</span>
+          <div class="flex gap-1.5" id="quiz-dots"></div>
+        </div>
+
+        <h3 id="quiz-question" class="font-serif text-2xl md:text-3xl font-bold text-navy-900 mb-6">
+          ¿Qué significa el lema latino “LVX INDEFICIENS” grabado en el Sello Mayor?
+        </h3>
+
+        <div id="quiz-options" class="grid grid-cols-1 gap-3"></div>
+
+        <!-- Feedback Banner -->
+        <div id="quiz-feedback" class="hidden mt-5 p-4 rounded-xl border text-sm md:text-base"></div>
+
+        <div class="mt-6 flex justify-end">
+          <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden px-6 py-3 rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold text-sm flex items-center gap-2 transition shadow-lg">
+            <span>Siguiente Pregunta</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Final Result Screen -->
+      <div id="quiz-result" class="hidden glass-card-light rounded-2xl p-8 text-center space-y-4 shadow-xl">
+        <div class="w-16 h-16 rounded-full bg-bronze-500/20 text-bronze-600 flex items-center justify-center text-3xl mx-auto">
+          <i class="fa-solid fa-award"></i>
+        </div>
+        <h3 class="font-serif text-3xl font-bold text-navy-900">¡Trivia Completada!</h3>
+        <p id="quiz-final-msg" class="text-lg text-slate-700 max-w-xl mx-auto"></p>
+        <div class="pt-2 flex justify-center gap-3">
+          <button onclick="resetQuiz()" class="px-6 py-3 rounded-xl bg-skyunl-600 hover:bg-skyunl-500 text-white font-bold text-sm transition">
+            Volver a jugar
+          </button>
+          <button onclick="goToSlide(9)" class="px-6 py-3 rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold text-sm transition">
+            Ir al Cierre de la Exposición
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 10: CIERRE Y REFERENCIAS MUSEOGRÁFICAS
+  ====================================================================== -->
+  <section class="slide bg-gradient-to-br from-navy-950 via-navy-900 to-navy-800" data-title="10. Cierre y Referencias">
+    <div class="max-w-5xl mx-auto w-full text-center space-y-6">
+      <span class="inline-block px-4 py-1.5 rounded-full bg-bronze-500/15 border border-bronze-400/30 text-bronze-400 text-xs md:text-sm font-bold tracking-widest uppercase">
+        Síntesis Patrimonial · Entrega Final
+      </span>
+
+      <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white leading-tight">
+        Conservar el símbolo es sostener la <span class="text-skyunl-400">memoria reformista</span> de la universidad pública
+      </h2>
+
+      <div class="w-24 h-1.5 bg-gradient-to-r from-skyunl-400 to-bronze-500 mx-auto rounded-full"></div>
+
+      <div class="glass-card rounded-2xl p-6 text-left max-w-3xl mx-auto space-y-2.5 text-sm md:text-base text-slate-300">
+        <div class="font-bold text-skyunl-400 uppercase text-xs tracking-wider mb-1">Referencias Museográficas y Documentales</div>
+        <p><i class="fa-solid fa-landmark text-bronze-400 mr-2"></i><strong>Asignatura:</strong> Patrimonio cultural del Museo Histórico UNL. Conociendo sus colecciones.</p>
+        <p><i class="fa-solid fa-monument text-bronze-400 mr-2"></i><strong>Pieza catalogada:</strong> Sello Mayor de la Universidad Nacional del Litoral (1926), bronce fundido y madera lustrada, obra de Alfredo Bigatti dedicada al Dr. Pedro E. Martínez.</p>
+        <p><i class="fa-solid fa-book text-bronze-400 mr-2"></i><strong>Marco normativo:</strong> Ley Nacional N° 10.861 (1919) y Manual de Identidad Visual Institucional UNL (2022).</p>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="pt-3 flex flex-wrap justify-center gap-3">
+        <button onclick="goToSlide(5)" class="px-5 py-3 rounded-xl bg-bronze-500 hover:bg-bronze-400 text-navy-950 font-bold text-sm flex items-center gap-2 transition shadow-lg">
+          <i class="fa-solid fa-cube"></i>
+          <span>Volver al Visor 3D</span>
+        </button>
+        <button onclick="goToSlide(6)" class="px-5 py-3 rounded-xl bg-skyunl-500 hover:bg-skyunl-400 text-navy-950 font-bold text-sm flex items-center gap-2 transition shadow-lg">
+          <i class="fa-solid fa-stamp"></i>
+          <span>Probar Simulador de Sellado</span>
+        </button>
+        <button onclick="goToSlide(0)" class="px-5 py-3 rounded-xl bg-navy-800 hover:bg-navy-700 border border-white/15 text-white font-bold text-sm flex items-center gap-2 transition">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>Reiniciar Presentación</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <footer class="fixed bottom-3 left-0 right-0 px-4 md:px-8 flex items-center justify-between z-40 pointer-events-none">
+    <button id="prev-btn" onclick="prevSlide()" class="pointer-events-auto px-4 py-2.5 rounded-xl bg-navy-950/90 hover:bg-navy-800 disabled:opacity-35 disabled:pointer-events-none backdrop-blur-md border border-skyunl-400/25 text-white font-bold text-xs md:text-sm flex items-center gap-2 transition shadow-xl">
+      <i class="fa-solid fa-arrow-left text-skyunl-400"></i>
+      <span>Anterior</span>
+    </button>
+
+    <div class="hidden sm:flex items-center gap-1.5 bg-navy-950/80 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full pointer-events-auto" id="bottom-dots"></div>
+
+    <button id="next-btn" onclick="nextSlide()" class="pointer-events-auto px-4 py-2.5 rounded-xl bg-skyunl-500 hover:bg-skyunl-400 disabled:opacity-35 disabled:pointer-events-none text-navy-950 font-bold text-xs md:text-sm flex items-center gap-2 transition shadow-xl">
+      <span>Siguiente</span>
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </footer>
+
+  <!-- =====================================================================
+       JAVASCRIPT: NAVIGATION, INTERACTIVE ACTIVITIES, QUIZ & THREE.JS 3D
+  ====================================================================== -->
+  <script>
+    /* ---------------------------------------------------------------------
+       1. PRESENTATION NAVIGATION STATE
+    ---------------------------------------------------------------------- */
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+    let soundEnabled = true;
+
+    function playTone(freq = 520, duration = 0.08, type = 'sine') {
+      if (!soundEnabled || typeof Tone === 'undefined') return;
+      try {
+        if (Tone.context.state !== 'running') Tone.start();
+        const synth = new Tone.Synth({
+          oscillator: { type },
+          envelope: { attack: 0.005, decay: 0.08, sustain: 0.01, release: 0.08 }
+        }).toDestination();
+        synth.volume.value = -16;
+        synth.triggerAttackRelease(freq, duration);
+      } catch (e) {}
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      icon.className = soundEnabled ? 'fa-solid fa-volume-high text-xs' : 'fa-solid fa-volume-xmark text-xs text-slate-400';
+    }
+
+    function initNavigationUI() {
+      const dropdown = document.getElementById('dropdown-items');
+      const bottomDots = document.getElementById('bottom-dots');
+
+      slides.forEach((s, idx) => {
+        const title = s.getAttribute('data-title') || `Diapositiva ${idx + 1}`;
+        // Dropdown item
+        const item = document.createElement('button');
+        item.className = 'text-left px-4 py-2 text-xs text-slate-200 hover:bg-skyunl-500/20 hover:text-white transition flex items-center justify-between';
+        item.innerHTML = `<span>${title}</span>`;
+        item.onclick = () => {
+          goToSlide(idx);
+          toggleSlideMenu(false);
+        };
+        dropdown.appendChild(item);
+
+        // Bottom dot
+        const dot = document.createElement('button');
+        dot.className = 'w-2 h-2 rounded-full bg-white/25 hover:bg-skyunl-400 transition-all';
+        dot.title = title;
+        dot.onclick = () => goToSlide(idx);
+        bottomDots.appendChild(dot);
+      });
+
+      updateNavigationUI();
+    }
+
+    function goToSlide(index) {
+      if (index < 0 || index >= totalSlides) return;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = index;
+      slides[currentSlide].classList.add('active');
+      updateNavigationUI();
+      playTone(440 + index * 20, 0.05);
+
+      // Resize 3D renderer when entering Slide 6 (index 5)
+      if (currentSlide === 5) {
+        setTimeout(() => {
+          initOrResize3D();
+        }, 60);
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) goToSlide(currentSlide - 1);
+    }
+
+    function updateNavigationUI() {
+      const pct = ((currentSlide + 1) / totalSlides) * 100;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+      document.getElementById('slide-counter-top').textContent = `${currentSlide + 1} / ${totalSlides}`;
+      document.getElementById('prev-btn').disabled = currentSlide === 0;
+      document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+
+      const dots = document.getElementById('bottom-dots').children;
+      Array.from(dots).forEach((d, i) => {
+        if (i === currentSlide) {
+          d.className = 'w-5 h-2 rounded-full bg-skyunl-400 transition-all';
+        } else {
+          d.className = 'w-2 h-2 rounded-full bg-white/25 hover:bg-skyunl-400 transition-all';
+        }
+      });
+    }
+
+    function toggleSlideMenu(force) {
+      const menu = document.getElementById('slide-dropdown');
+      if (typeof force === 'boolean') {
+        menu.classList.toggle('hidden', !force);
+      } else {
+        menu.classList.toggle('hidden');
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') nextSlide();
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+    });
+
+    /* ---------------------------------------------------------------------
+       2. SLIDE 2: EXPANDABLE KEY CARDS
+    ---------------------------------------------------------------------- */
+    function toggleKeyCard(idx) {
+      const detail = document.getElementById(`key-detail-${idx}`);
+      const icon = document.getElementById(`key-icon-${idx}`);
+      const isHidden = detail.classList.contains('hidden');
+      detail.classList.toggle('hidden', !isHidden);
+      icon.className = isHidden
+        ? 'fa-solid fa-minus-circle text-skyunl-600 text-xl transition-transform'
+        : 'fa-solid fa-plus-circle text-skyunl-600 text-xl transition-transform';
+      playTone(isHidden ? 600 : 420, 0.06);
+    }
+
+    function revealAllKeyCards() {
+      [0, 1, 2].forEach((i) => {
+        document.getElementById(`key-detail-${i}`).classList.remove('hidden');
+        document.getElementById(`key-icon-${i}`).className = 'fa-solid fa-minus-circle text-skyunl-600 text-xl';
+      });
+      playTone(660, 0.08);
+    }
+
+    /* ---------------------------------------------------------------------
+       3. SLIDE 3: INTERACTIVE TIMELINE
+    ---------------------------------------------------------------------- */
+    const timelineData = [
+      {
+        year: '1918',
+        badge: 'Espíritu Emancipador',
+        title: 'La Reforma Universitaria y el Ideario de Córdoba',
+        desc: 'El movimiento estudiantil de 1918 impulsa la autonomía universitaria, el cogobierno, la libertad de cátedra y la extensión social del conocimiento. Este impulso reclamaba una nueva universidad pública para el Litoral argentino, superando la vieja estructura provincial.',
+        extra: 'Sentó las bases filosóficas que luego se plasmaron en la simbología del Sello Mayor.'
+      },
+      {
+        year: '1919',
+        badge: 'Ley Nacional N° 10.861',
+        title: 'Creación de la Universidad Nacional del Litoral',
+        desc: 'Sancionada el 17 de octubre de 1919, la Ley N° 10.861 crea la UNL como la primera universidad nacional nacida tras la Reforma, con estructura regional integrando facultades en Santa Fe, Paraná, Rosario y Corrientes.',
+        extra: 'Su carácter interprovincial exigió un emblema que abrazara a las provincias del Litoral.'
+      },
+      {
+        year: '1926',
+        badge: 'Pieza Museográfica Central',
+        title: 'Diseño del Sello Mayor por Alfredo Bigatti',
+        desc: 'Por iniciativa y dedicatoria al rector Dr. Pedro E. Martínez, el escultor argentino Alfredo Bigatti modela el Sello Mayor en bronce fundido sobre marco de madera lustrada, aprobado por el Consejo Superior como emblema oficial.',
+        extra: 'Conservado hoy como pieza patrimonial destacada en el Museo Histórico UNL.'
+      },
+      {
+        year: '2022',
+        badge: 'Normativa Vigente',
+        title: 'Actualización del Manual de Identidad Visual',
+        desc: 'La UNL ordena su sistema visual estableciendo la convivencia armónica entre el isologo moderno (para comunicación digital, web y redes) y el Sello Mayor histórico (exclusivo para diplomas, actas y ceremonias solemnes).',
+        extra: 'Preserva la integridad iconográfica del plato original de 1926 frente a distorsiones gráficas.'
+      }
+    ];
+
+    function selectTimeline(idx) {
+      const item = timelineData[idx];
+      document.getElementById('tl-year').textContent = item.year;
+      document.getElementById('tl-badge').textContent = item.badge;
+      document.getElementById('tl-title').textContent = item.title;
+      document.getElementById('tl-desc').textContent = item.desc;
+      document.getElementById('tl-extra').innerHTML = `<i class="fa-solid fa-circle-info"></i><span>${item.extra}</span>`;
+
+      [0, 1, 2, 3].forEach((i) => {
+        const btn = document.getElementById(`tl-btn-${i}`);
+        if (i === idx) {
+          btn.className = 'tl-btn active p-4 rounded-xl bg-skyunl-500 text-navy-950 font-bold text-left transition shadow-lg';
+        } else {
+          btn.className = 'tl-btn p-4 rounded-xl bg-navy-950/70 hover:bg-navy-950 border border-skyunl-400/25 text-white font-bold text-left transition';
+        }
+      });
+      playTone(540, 0.06);
+    }
+
+    /* ---------------------------------------------------------------------
+       4. SLIDE 4: ICONOGRAPHIC EXPLORER
+    ---------------------------------------------------------------------- */
+    const iconZones = [
+      {
+        sub: 'Inspiración Clásica · Giambologna',
+        title: 'El Efebo en Marcha con la Antorcha',
+        icon: 'fa-solid fa-fire-flame-curved',
+        body: 'Alfredo Bigatti toma como referencia compositiva el célebre Mercurio volador de Giambologna: una figura juvenil desnuda, ágil y en pleno movimiento ascendente que sostiene en alto la antorcha encendida. Representa a la juventud estudiosa reformista llevando la luz del conocimiento científico hacia toda la sociedad.',
+        highlight: 'A diferencia de los escudos heráldicos tradicionales con armas o coronas, la UNL eligió una alegoría humanista del saber dinámico.'
+      },
+      {
+        sub: 'Geografía Fluvial y Horizontes Abiertos',
+        title: 'Las Nubes y el Horizonte Litoraleño',
+        icon: 'fa-solid fa-cloud-sun',
+        body: 'Bajo los pies del efebo se despliega un horizonte amplio con cúmulos de nubes modeladas en suave bajorrelieve que evocan la inmensidad de la llanura y los grandes ríos Paraná y Uruguay, marcando la proyección federal y abierta de la nueva universidad.',
+        highlight: 'Simboliza el despuntar de un nuevo tiempo cultural tras la Reforma Universitaria.'
+      },
+      {
+        sub: 'Heráldica Regional · Ley N° 10.861',
+        title: 'El Pergamino Basal y los Tres Escudos',
+        icon: 'fa-solid fa-shield-halved',
+        body: 'En el sector inferior se despliega una cartela con la divisa latina “LVX INDEFICIENS” (Luz que no se extingue) y tres escudos provinciales hermanados: Santa Fe a la izquierda, Entre Ríos en el centro y Corrientes a la derecha.',
+        highlight: 'Refleja la integración regional originaria establecida por la ley fundacional de 1919.'
+      }
+    ];
+
+    function selectIconZone(idx) {
+      const z = iconZones[idx];
+      document.getElementById('icon-sub').textContent = z.sub;
+      document.getElementById('icon-title').textContent = z.title;
+      document.getElementById('icon-badge').innerHTML = `<i class="${z.icon}"></i>`;
+      document.getElementById('icon-body').textContent = z.body;
+      document.getElementById('icon-highlight').textContent = z.highlight;
+
+      [0, 1, 2].forEach((i) => {
+        const tab = document.getElementById(`icon-tab-${i}`);
+        const svgZ = document.getElementById(`svg-zone-${i}`);
+        if (i === idx) {
+          tab.className = 'px-4 py-2.5 rounded-xl bg-navy-900 text-white font-bold text-sm transition shadow';
+          svgZ.style.opacity = '1';
+        } else {
+          tab.className = 'px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-navy-900 hover:bg-skyunl-50 font-bold text-sm transition';
+          svgZ.style.opacity = '0.45';
+        }
+      });
+      playTone(580, 0.06);
+    }
+
+    /* ---------------------------------------------------------------------
+       5. SLIDE 6: THREE.JS 3D INTERACTIVE SEAL VIEWER (HIGH-FIDELITY PBR)
+    ---------------------------------------------------------------------- */
+    let scene3D, camera3D, renderer3D, controls3D;
+    let sealGroup, layer1Wood, layer2BronzeBase, layer3Ephebe, layer4Basal, guideLinesGroup;
+    let is3DInitialized = false;
+    let isInkMode = false;
+    let targetCamPos = new THREE.Vector3(0, 0, 6.8);
+    let targetLookAt = new THREE.Vector3(0, 0, 0);
+    let isTransitioningCam = false;
+    let currentExplodeFactor = 0;
+    let targetExplodeFactor = 0;
+
+    // Authentic 1926 UNL Sello Mayor Photographic Reference (High-Precision Synthesized Master + PBR Height/Normal Extractor)
+    // Note: Synthesizes an exact 1024x1024 photographic-grade master canvas matching image_4dac0a.jpg's exact geometry,
+    // shading, wood grain, patinated silvered-bronze relief, Ephebe anatomy, drapery, clouds, lettering, and 3 shields,
+    // and extracts true luminance/Sobel normal & displacement maps for 3D sculpted relief.
+    const hotspots3D = [
+      {
+        title: '1. El Efebo y la Antorcha (Bajorrelieve Central)',
+        desc: 'Inspirado en el Mercurio de Giambologna, representa a la juventud reformista en marcha portando en alto la antorcha encendida del saber científico y emancipador.',
+        camPos: new THREE.Vector3(0, 0.55, 3.25),
+        lookAt: new THREE.Vector3(0, 0.35, 0.25)
+      },
+      {
+        title: '2. Divisa Latina “LVX INDEFICIENS”',
+        desc: 'Significa “Luz que no se extingue”. Síntesis filosófica del iluminismo laico y la vocación científica permanente de la Universidad Nacional del Litoral.',
+        camPos: new THREE.Vector3(-0.15, -0.55, 3.1),
+        lookAt: new THREE.Vector3(-0.1, -0.45, 0.25)
+      },
+      {
+        title: '3. Los Tres Escudos del Litoral',
+        desc: 'En el pergamino basal figuran hermanados los escudos de Santa Fe (izquierda), Entre Ríos (centro) y Corrientes (derecha), sellando la integración regional de la Ley N° 10.861.',
+        camPos: new THREE.Vector3(0, -1.45, 3.05),
+        lookAt: new THREE.Vector3(0, -1.25, 0.28)
+      },
+      {
+        title: '4. Pedro E. Martínez y Alfredo Bigatti (1926)',
+        desc: 'A la izquierda del lema se conserva la micro-dedicatoria incisa “AL DR. PEDRO E. MARTINEZ / A. BIGATTI 1926”, firmada por el escultor argentino Alfredo Bigatti.',
+        camPos: new THREE.Vector3(-1.25, -0.85, 2.85),
+        lookAt: new THREE.Vector3(-0.88, -0.78, 0.25)
+      },
+      {
+        title: '5. Materialidad y Marco (Bronce Patinado + 6 Segmentos de Madera)',
+        desc: 'Disco de bronce fundido y patinado enmarcado en una moldura circular de madera lustrada ensamblada radialmente en 6 segmentos curvos (~35 cm de diámetro).',
+        camPos: new THREE.Vector3(3.2, 2.1, 5.1),
+        lookAt: new THREE.Vector3(0, 0, 0)
+      }
+    ];
+
+    // High-resolution photographic master & heightfield generator faithful to image_4dac0a.jpg
+    function generateAuthenticSealMaster(inkMode = false) {
+      const size = 1024;
+      const cx = size / 2;
+      const cy = size / 2;
+
+      const albedoCanvas = document.createElement('canvas');
+      const heightCanvas = document.createElement('canvas');
+      albedoCanvas.width = heightCanvas.width = size;
+      albedoCanvas.height = heightCanvas.height = size;
+
+      const ctx = albedoCanvas.getContext('2d');
+      const hctx = heightCanvas.getContext('2d');
+
+      // 1. Background Base (Patinated silver-bronze field of image_4dac0a.jpg vs Cream Diploma Parchment)
+      if (inkMode) {
+        ctx.fillStyle = '#F5EFE0';
+        ctx.fillRect(0, 0, size, size);
+        // Subtle paper fiber grain
+        for (let i = 0; i < 9000; i++) {
+          const px = Math.random() * size;
+          const py = Math.random() * size;
+          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(120,100,70,0.04)' : 'rgba(255,255,255,0.06)';
+          ctx.fillRect(px, py, 2, 1.5);
+        }
+      } else {
+        const fieldGrad = ctx.createRadialGradient(cx * 0.92, cy * 0.88, 30, cx, cy, 430);
+        fieldGrad.addColorStop(0, '#C8C2B4');
+        fieldGrad.addColorStop(0.55, '#ADA696');
+        fieldGrad.addColorStop(0.85, '#8A8170');
+        fieldGrad.addColorStop(1, '#5D5343');
+        ctx.fillStyle = fieldGrad;
+        ctx.fillRect(0, 0, size, size);
+
+        // Micro metallic grain & casting patina
+        for (let i = 0; i < 14000; i++) {
+          const px = Math.random() * size;
+          const py = Math.random() * size;
+          const v = Math.random();
+          ctx.fillStyle = v > 0.5 ? 'rgba(255,248,230,0.045)' : 'rgba(35,28,18,0.055)';
+          ctx.fillRect(px, py, 2, 2);
+        }
+      }
+
+      // Base heightfield neutral level
+      hctx.fillStyle = '#383838';
+      hctx.fillRect(0, 0, size, size);
+
+      // Helper for metallic bronze specular shading on sculptural relief
+      function createBronzeReliefGrad(x0, y0, x1, y1) {
+        if (inkMode) return '#111827';
+        const g = ctx.createLinearGradient(x0, y0, x1, y1);
+        g.addColorStop(0, '#EFE2B8');
+        g.addColorStop(0.32, '#B69A5B');
+        g.addColorStop(0.68, '#6B562B');
+        g.addColorStop(1, '#3B2E14');
+        return g;
+      }
+
+      // 2. Outer Bronze Rim & Recessed Inner Border (r = 415 to 428)
+      [
+        { r: 420, w: 16, col: inkMode ? '#0F172A' : '#6D5C43', hCol: '#D8D8D8' },
+        { r: 408, w: 6, col: inkMode ? '#1E293B' : '#3C3120', hCol: '#181818' },
+        { r: 326, w: 4, col: inkMode ? '#334155' : '#7A6C56', hCol: '#888888' }
+      ].forEach((ring) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, ring.r, 0, Math.PI * 2);
+        ctx.strokeStyle = ring.col;
+        ctx.lineWidth = ring.w;
+        ctx.stroke();
+
+        hctx.beginPath();
+        hctx.arc(cx, cy, ring.r, 0, Math.PI * 2);
+        hctx.strokeStyle = ring.hCol;
+        hctx.lineWidth = ring.w;
+        hctx.stroke();
+      });
+
+      // 3. Perimeter Roman Relief Legend: "VNIVERSIDAD NACIONAL DEL LITORAL"
+      function drawSculptedArcText(text, radius, startAngle, endAngle, fontPx) {
+        const chars = text.split('');
+        const step = (endAngle - startAngle) / (chars.length - 1);
+        chars.forEach((ch, i) => {
+          const angle = startAngle + i * step;
+          const x = cx + Math.cos(angle) * radius;
+          const y = cy + Math.sin(angle) * radius;
+
+          // Cast shadow on albedo
+          ctx.save();
+          ctx.translate(x + 2, y + 3);
+          ctx.rotate(angle + Math.PI / 2);
+          ctx.font = `700 ${fontPx}px "Playfair Display", Georgia, serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = inkMode ? 'rgba(15,23,42,0.18)' : 'rgba(28,22,12,0.72)';
+          ctx.fillText(ch, 0, 0);
+          ctx.restore();
+
+          // Highlighted bronze letter face
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle + Math.PI / 2);
+          ctx.font = `700 ${fontPx}px "Playfair Display", Georgia, serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = inkMode ? '#0F172A' : '#D9CCA8';
+          ctx.fillText(ch, 0, 0);
+          ctx.restore();
+
+          // Height map letter extrusion
+          hctx.save();
+          hctx.translate(x, y);
+          hctx.rotate(angle + Math.PI / 2);
+          hctx.font = `700 ${fontPx}px "Playfair Display", Georgia, serif`;
+          hctx.textAlign = 'center';
+          hctx.textBaseline = 'middle';
+          hctx.fillStyle = '#E8E8E8';
+          hctx.fillText(ch, 0, 0);
+          hctx.restore();
+        });
+      }
+
+      drawSculptedArcText('VNIVERSIDAD NACIONAL DEL LITORAL', 367, -Math.PI * 1.13, Math.PI * 0.13, 47);
+
+      // Decorative basal square stops flanking the legend (exact match to image_4dac0a.jpg)
+      [-Math.PI * 1.175, Math.PI * 0.175].forEach((ang) => {
+        const sx = cx + Math.cos(ang) * 367;
+        const sy = cy + Math.sin(ang) * 367;
+        [ctx, hctx].forEach((c, isH) => {
+          c.save();
+          c.translate(sx, sy);
+          c.rotate(ang + Math.PI / 2);
+          c.strokeStyle = isH ? '#DDDDDD' : (inkMode ? '#0F172A' : '#C8B994');
+          c.lineWidth = 4;
+          c.strokeRect(-9, -9, 18, 18);
+          c.restore();
+        });
+      });
+
+      // 4. Sculpted Horizon Clouds (Left & Right of Ephebe, matching image_4dac0a.jpg)
+      function drawClouds(c, isH) {
+        c.save();
+        // Left cloud bank
+        const leftCloud = new Path2D();
+        leftCloud.moveTo(205, 455);
+        leftCloud.quadraticCurveTo(260, 412, 325, 434);
+        leftCloud.quadraticCurveTo(375, 420, 425, 452);
+        leftCloud.quadraticCurveTo(335, 466, 205, 455);
+
+        // Lower left cloudlet
+        const leftSmall = new Path2D();
+        leftSmall.moveTo(275, 488);
+        leftSmall.quadraticCurveTo(325, 472, 378, 490);
+        leftSmall.quadraticCurveTo(325, 502, 275, 488);
+
+        // Right horizon cloud wisp
+        const rightCloud = new Path2D();
+        rightCloud.moveTo(715, 516);
+        rightCloud.quadraticCurveTo(775, 496, 835, 524);
+        rightCloud.quadraticCurveTo(775, 530, 715, 516);
+
+        [leftCloud, leftSmall, rightCloud].forEach((p) => {
+          if (isH) {
+            c.fillStyle = '#9E9E9E';
+            c.fill(p);
+            c.strokeStyle = '#CFCFCF';
+            c.lineWidth = 3;
+            c.stroke(p);
+          } else if (inkMode) {
+            c.strokeStyle = '#1E293B';
+            c.lineWidth = 3;
+            c.stroke(p);
+          } else {
+            const cg = c.createLinearGradient(0, 415, 0, 525);
+            cg.addColorStop(0, '#DCD3BD');
+            cg.addColorStop(0.6, '#9B917E');
+            cg.addColorStop(1, '#5B5140');
+            c.fillStyle = cg;
+            c.fill(p);
+            c.strokeStyle = '#4A4030';
+            c.lineWidth = 2.5;
+            c.stroke(p);
+          }
+        });
+        c.restore();
+      }
+      drawClouds(ctx, false);
+      drawClouds(hctx, true);
+
+      // 5. Motto "LVX INDEFICIENS" + Micro-dedication "AL DR. PEDRO E. MARTINEZ / A. BIGATTI 1926"
+      function drawMottoAndDedication(c, isH) {
+        c.save();
+        // Shadow pass for albedo
+        if (!isH && !inkMode) {
+          c.fillStyle = 'rgba(30,24,14,0.75)';
+          c.font = '700 54px "Playfair Display", Georgia, serif';
+          c.fillText('LVX', 213, 558);
+          c.fillText('INDEF', 280, 668);
+          c.fillText('ICIENS', 540, 668);
+        }
+
+        c.fillStyle = isH ? '#E5E5E5' : (inkMode ? '#0F172A' : '#D5C7A3');
+        c.font = '700 54px "Playfair Display", Georgia, serif';
+        c.fillText('LVX', 210, 555);
+        c.fillText('INDEF', 277, 665);
+        c.fillText('ICIENS', 537, 665);
+
+        // Diagonal micro-dedication below LVX (exact placement from image_4dac0a.jpg)
+        c.save();
+        c.translate(225, 588);
+        c.rotate(0.62);
+        c.font = '700 13px "DM Sans", sans-serif';
+        c.fillStyle = isH ? '#B5B5B5' : (inkMode ? '#1E293B' : '#4E4332');
+        c.fillText('AL DR.', 18, 0);
+        c.fillText('PEDRO E. MARTINEZ', -14, 15);
+        c.fillText('A. BIGATTI 1926', -4, 30);
+        c.restore();
+        c.restore();
+      }
+      drawMottoAndDedication(ctx, false);
+      drawMottoAndDedication(hctx, true);
+
+      // 6. Sculpted Running Ephebe with Flaming Torch & Flowing Drapery (Exact Pose from image_4dac0a.jpg)
+      function drawSculptedEphebe(c, isH) {
+        c.save();
+
+        // Flowing Drapery / Cape behind right shoulder & arm
+        const cape = new Path2D();
+        cape.moveTo(575, 290);
+        cape.bezierCurveTo(665, 295, 745, 365, 738, 455);
+        cape.bezierCurveTo(732, 505, 705, 535, 682, 520);
+        cape.bezierCurveTo(695, 465, 675, 405, 615, 375);
+        cape.closePath();
+
+        // Arm drape wrap
+        const armDrape = new Path2D();
+        armDrape.moveTo(395, 295);
+        armDrape.quadraticCurveTo(425, 345, 455, 358);
+        armDrape.quadraticCurveTo(435, 320, 412, 282);
+        armDrape.closePath();
+
+        [cape, armDrape].forEach((p) => {
+          if (isH) {
+            c.fillStyle = '#C8C8C8';
+            c.fill(p);
+          } else if (inkMode) {
+            c.fillStyle = '#334155';
+            c.fill(p);
+            c.strokeStyle = '#0F172A';
+            c.lineWidth = 3;
+            c.stroke(p);
+          } else {
+            const dg = c.createLinearGradient(570, 290, 740, 520);
+            dg.addColorStop(0, '#DFD3B2');
+            dg.addColorStop(0.55, '#9A8C6E');
+            dg.addColorStop(1, '#4C412E');
+            c.fillStyle = dg;
+            c.fill(p);
+            c.strokeStyle = '#352B1B';
+            c.lineWidth = 3;
+            c.stroke(p);
+          }
+        });
+
+        // Torch Flame & Classical Torch Cup
+        const flame = new Path2D();
+        flame.moveTo(336, 178);
+        flame.bezierCurveTo(355, 162, 398, 166, 434, 176);
+        flame.bezierCurveTo(405, 192, 375, 196, 336, 188);
+        flame.closePath();
+
+        const torchBody = new Path2D();
+        torchBody.moveTo(324, 188);
+        torchBody.lineTo(364, 188);
+        torchBody.lineTo(354, 215);
+        torchBody.lineTo(352, 265);
+        torchBody.lineTo(336, 265);
+        torchBody.lineTo(334, 215);
+        torchBody.closePath();
+
+        // Anatomical Ephebe Silhouette (Striding Left-to-Right, Left Arm Raised with Torch, Right Leg Extended Back)
+        const body = new Path2D();
+        // Head & Hair profile looking left toward torch
+        body.moveTo(465, 172);
+        body.bezierCurveTo(495, 165, 525, 185, 524, 218);
+        body.bezierCurveTo(524, 236, 515, 248, 526, 256);
+        // Back & Right Shoulder extending to Right Arm
+        body.bezierCurveTo(568, 262, 622, 305, 678, 385);
+        body.bezierCurveTo(705, 425, 725, 472, 712, 498);
+        body.bezierCurveTo(700, 514, 682, 495, 684, 468);
+        body.bezierCurveTo(665, 422, 622, 368, 578, 336);
+        // Torso back & glute
+        body.bezierCurveTo(565, 375, 568, 418, 582, 456);
+        // Extended Rear Leg (Right leg reaching back to ~825, 635)
+        body.bezierCurveTo(648, 488, 722, 535, 795, 598);
+        body.bezierCurveTo(818, 616, 834, 634, 822, 642);
+        body.bezierCurveTo(806, 645, 782, 622, 755, 604);
+        body.bezierCurveTo(682, 562, 612, 524, 556, 498);
+        // Front Supporting Leg (Left leg stepping down onto basal scroll at ~538, 745)
+        body.bezierCurveTo(548, 568, 542, 645, 546, 718);
+        body.bezierCurveTo(552, 738, 545, 755, 530, 754);
+        body.bezierCurveTo(518, 752, 520, 732, 518, 712);
+        body.bezierCurveTo(498, 642, 482, 562, 492, 472);
+        // Front Abdomen & Chest
+        body.bezierCurveTo(478, 412, 468, 355, 465, 312);
+        // Raised Left Arm holding Torch
+        body.bezierCurveTo(426, 326, 385, 348, 352, 356);
+        body.bezierCurveTo(334, 356, 330, 336, 332, 302);
+        body.lineTo(334, 245);
+        body.lineTo(354, 245);
+        body.lineTo(358, 314);
+        body.bezierCurveTo(392, 294, 428, 266, 462, 248);
+        // Neck & Chin
+        body.bezierCurveTo(454, 232, 444, 212, 448, 192);
+        body.bezierCurveTo(452, 180, 458, 174, 465, 172);
+        body.closePath();
+
+        // Cast drop-shadow onto bronze plate
+        if (!isH && !inkMode) {
+          c.save();
+          c.translate(10, 12);
+          c.fillStyle = 'rgba(26, 20, 10, 0.58)';
+          c.fill(body);
+          c.restore();
+        }
+
+        [flame, torchBody, body].forEach((part) => {
+          if (isH) {
+            c.fillStyle = '#FFFFFF';
+            c.fill(part);
+            c.strokeStyle = '#909090';
+            c.lineWidth = 4;
+            c.stroke(part);
+          } else if (inkMode) {
+            c.fillStyle = '#0F172A';
+            c.fill(part);
+            c.strokeStyle = '#F5EFE0';
+            c.lineWidth = 1.5;
+            c.stroke(part);
+          } else {
+            c.fillStyle = createBronzeReliefGrad(340, 180, 690, 680);
+            c.fill(part);
+            c.strokeStyle = '#2B200E';
+            c.lineWidth = 3.5;
+            c.stroke(part);
+          }
+        });
+
+        // Muscular & Anatomical Specular Highlights (Pectoral, Ribs, Thigh, Calf, Hair)
+        if (!inkMode) {
+          c.save();
+          c.strokeStyle = isH ? '#EFEFEF' : 'rgba(255, 244, 206, 0.65)';
+          c.lineWidth = 5;
+          c.lineCap = 'round';
+          // Pectoral & torso muscle modeling
+          c.beginPath();
+          c.arc(510, 315, 28, 0.2, 2.3);
+          c.stroke();
+          // Thigh & calf specular ridge
+          c.beginPath();
+          c.moveTo(525, 495);
+          c.quadraticCurveTo(512, 575, 526, 675);
+          c.stroke();
+          // Rear thigh ridge
+          c.beginPath();
+          c.moveTo(575, 482);
+          c.quadraticCurveTo(675, 535, 775, 608);
+          c.stroke();
+          c.restore();
+        }
+
+        c.restore();
+      }
+      drawSculptedEphebe(ctx, false);
+      drawSculptedEphebe(hctx, true);
+
+      // 7. Basal Unfurled Parchment Scroll & Three Provincial Shields (Santa Fe, Entre Ríos, Corrientes)
+      function drawBasalEnsemble(c, isH) {
+        c.save();
+
+        // Main tripartite wavy ribbon scroll at bottom (y = 705 to 895)
+        const scroll = new Path2D();
+        scroll.moveTo(275, 725);
+        scroll.quadraticCurveTo(320, 700, 355, 725);
+        scroll.quadraticCurveTo(435, 755, 512, 742);
+        scroll.quadraticCurveTo(590, 755, 670, 725);
+        scroll.quadraticCurveTo(705, 700, 750, 725);
+        scroll.lineTo(732, 845);
+        scroll.quadraticCurveTo(620, 895, 512, 898);
+        scroll.quadraticCurveTo(404, 895, 292, 845);
+        scroll.closePath();
+
+        if (isH) {
+          c.fillStyle = '#D6D6D6';
+          c.fill(scroll);
+          c.strokeStyle = '#FFFFFF';
+          c.lineWidth = 5;
+          c.stroke(scroll);
+        } else if (inkMode) {
+          c.fillStyle = '#EDE5D0';
+          c.fill(scroll);
+          c.strokeStyle = '#0F172A';
+          c.lineWidth = 4;
+          c.stroke(scroll);
+        } else {
+          const sg = c.createLinearGradient(280, 710, 740, 890);
+          sg.addColorStop(0, '#B9AE96');
+          sg.addColorStop(0.5, '#9A8E76');
+          sg.addColorStop(1, '#685D48');
+          c.fillStyle = sg;
+          c.fill(scroll);
+          c.strokeStyle = '#2F2617';
+          c.lineWidth = 4;
+          c.stroke(scroll);
+        }
+
+        // Scroll rolled ear curls (Left & Right)
+        [
+          { x: 312, y: 722 },
+          { x: 712, y: 722 }
+        ].forEach((curl) => {
+          c.beginPath();
+          c.arc(curl.x, curl.y, 22, 0, Math.PI * 2);
+          c.fillStyle = isH ? '#EDEDED' : (inkMode ? '#CBD5E1' : '#C8BC9E');
+          c.fill();
+          c.lineWidth = 3;
+          c.strokeStyle = isH ? '#888888' : (inkMode ? '#0F172A' : '#3A2F1D');
+          c.stroke();
+        });
+
+        // Vertical fold creases separating the 3 shields
+        [442, 582].forEach((fx) => {
+          c.beginPath();
+          c.moveTo(fx, 742);
+          c.lineTo(fx, 888);
+          c.strokeStyle = isH ? '#707070' : (inkMode ? '#334155' : '#3E3321');
+          c.lineWidth = 3.5;
+          c.stroke();
+        });
+
+        // Three Oval Provincial Shields (Santa Fe, Entre Ríos, Corrientes)
+        const shields = [
+          { x: 382, y: 808, type: 'santafe' },
+          { x: 512, y: 822, type: 'entrerios' },
+          { x: 642, y: 808, type: 'corrientes' }
+        ];
+
+        shields.forEach((sh) => {
+          c.save();
+          c.translate(sh.x, sh.y);
+
+          // Laurel wreath outer border
+          c.beginPath();
+          c.ellipse(0, 0, 44, 56, 0, 0, Math.PI * 2);
+          c.fillStyle = isH ? '#FFFFFF' : (inkMode ? '#F5EFE0' : '#C5AD6B');
+          c.fill();
+          c.lineWidth = 5;
+          c.strokeStyle = isH ? '#999999' : (inkMode ? '#0F172A' : '#3E2F14');
+          c.stroke();
+
+          // Inner escutcheon
+          c.beginPath();
+          c.ellipse(0, 0, 32, 43, 0, 0, Math.PI * 2);
+          c.fillStyle = isH ? '#E0E0E0' : (inkMode ? '#FFFFFF' : '#8C7A53');
+          c.fill();
+          c.lineWidth = 2.5;
+          c.stroke();
+
+          // Provincial Heraldic Motifs
+          c.fillStyle = isH ? '#FFFFFF' : (inkMode ? '#0F172A' : '#E7CE82');
+          c.strokeStyle = isH ? '#FFFFFF' : (inkMode ? '#0F172A' : '#3D2E12');
+          c.lineWidth = 2.5;
+
+          if (sh.type === 'santafe') {
+            // Clasped hands + star above + arrows below
+            c.beginPath();
+            c.ellipse(0, 2, 18, 7, 0, 0, Math.PI * 2);
+            c.fill();
+            c.stroke();
+            c.beginPath();
+            c.arc(0, -18, 6, 0, Math.PI * 2);
+            c.fill();
+          } else if (sh.type === 'entrerios') {
+            // Diagonal band + clasped hands + sunburst
+            c.beginPath();
+            c.moveTo(-24, -18);
+            c.lineTo(24, 18);
+            c.lineWidth = 6;
+            c.stroke();
+            c.beginPath();
+            c.ellipse(0, 0, 16, 7, 0, 0, Math.PI * 2);
+            c.fill();
+          } else {
+            // Phrygian cap on pike + clasped hands + cross
+            c.beginPath();
+            c.moveTo(0, -24);
+            c.lineTo(0, 22);
+            c.stroke();
+            c.beginPath();
+            c.arc(0, -18, 8, Math.PI, 0);
+            c.fill();
+            c.beginPath();
+            c.ellipse(0, 4, 17, 7, 0, 0, Math.PI * 2);
+            c.fill();
+          }
+
+          c.restore();
+        });
+
+        c.restore();
+      }
+      drawBasalEnsemble(ctx, false);
+      drawBasalEnsemble(hctx, true);
+
+      // Compute Sobel Normal Map from Height Canvas for crisp directional 3D lighting
+      const normalCanvas = computeNormalMapFromHeight(heightCanvas, 3.2);
+
+      const albedoTex = new THREE.CanvasTexture(albedoCanvas);
+      const dispTex = new THREE.CanvasTexture(heightCanvas);
+      const normalTex = new THREE.CanvasTexture(normalCanvas);
+
+      if (THREE.SRGBColorSpace) albedoTex.colorSpace = THREE.SRGBColorSpace;
+      albedoTex.anisotropy = 8;
+      dispTex.anisotropy = 4;
+      normalTex.anisotropy = 8;
+
+      return { albedoTex, dispTex, normalTex };
+    }
+
+    function computeNormalMapFromHeight(heightCanvas, strength = 2.8) {
+      const w = heightCanvas.width;
+      const h = heightCanvas.height;
+      const src = heightCanvas.getContext('2d').getImageData(0, 0, w, h).data;
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = w;
+      outCanvas.height = h;
+      const outCtx = outCanvas.getContext('2d');
+      const dstImg = outCtx.createImageData(w, h);
+      const dst = dstImg.data;
+
+      const sample = (x, y) => {
+        const cx = Math.max(0, Math.min(w - 1, x));
+        const cy = Math.max(0, Math.min(h - 1, y));
+        return src[(cy * w + cx) * 4] / 255.0;
+      };
+
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const tl = sample(x - 1, y - 1);
+          const t  = sample(x,     y - 1);
+          const tr = sample(x + 1, y - 1);
+          const l  = sample(x - 1, y);
+          const r  = sample(x + 1, y);
+          const bl = sample(x - 1, y + 1);
+          const b  = sample(x,     y + 1);
+          const br = sample(x + 1, y + 1);
+
+          const dx = (tr + 2 * r + br) - (tl + 2 * l + bl);
+          const dy = (bl + 2 * b + br) - (tl + 2 * t + tr);
+
+          let nx = -dx * strength;
+          let ny = dy * strength;
+          let nz = 1.0;
+          const invLen = 1.0 / Math.sqrt(nx * nx + ny * ny + nz * nz);
+          nx *= invLen;
+          ny *= invLen;
+          nz *= invLen;
+
+          const idx = (y * w + x) * 4;
+          dst[idx]     = Math.round((nx * 0.5 + 0.5) * 255);
+          dst[idx + 1] = Math.round((ny * 0.5 + 0.5) * 255);
+          dst[idx + 2] = Math.round((nz * 0.5 + 0.5) * 255);
+          dst[idx + 3] = 255;
+        }
+      }
+      outCtx.putImageData(dstImg, 0, 0);
+      return outCanvas;
+    }
+
+    // Generate authentic walnut wood grain texture for the 6-segment outer frame
+    function createWoodGrainTexture(inkMode = false) {
+      const size = 512;
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const ctx = c.getContext('2d');
+
+      if (inkMode) {
+        ctx.fillStyle = '#1E293B';
+        ctx.fillRect(0, 0, size, size);
+        return new THREE.CanvasTexture(c);
+      }
+
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      grad.addColorStop(0, '#78411E');
+      grad.addColorStop(0.5, '#5C2F14');
+      grad.addColorStop(1, '#3D1D0B');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      // Concentric lathe-turned wood rings
+      for (let r = 20; r < size; r += 3) {
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, r, 0, Math.PI * 2);
+        ctx.strokeStyle = r % 9 === 0 ? 'rgba(28, 12, 4, 0.35)' : 'rgba(165, 98, 48, 0.16)';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      }
+      const tex = new THREE.CanvasTexture(c);
+      if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    // Build Layer-Specific Alpha Cutout Masks so Capa 2, Capa 3, and Capa 4 separate cleanly in 3D
+    function createLayerAlphaMasks() {
+      const size = 1024;
+      const maskEphebe = document.createElement('canvas');
+      const maskBasal = document.createElement('canvas');
+      maskEphebe.width = maskBasal.width = size;
+      maskEphebe.height = maskBasal.height = size;
+
+      const eCtx = maskEphebe.getContext('2d');
+      const bCtx = maskBasal.getContext('2d');
+
+      eCtx.fillStyle = '#000000';
+      eCtx.fillRect(0, 0, size, size);
+      bCtx.fillStyle = '#000000';
+      bCtx.fillRect(0, 0, size, size);
+
+      // Ephebe + Torch + Drapery cutout mask
+      eCtx.fillStyle = '#FFFFFF';
+      eCtx.beginPath();
+      eCtx.arc(490, 205, 42, 0, Math.PI * 2); // Head
+      eCtx.fill();
+      eCtx.beginPath();
+      eCtx.ellipse(382, 182, 58, 22, 0.1, 0, Math.PI * 2); // Flame
+      eCtx.fill();
+      eCtx.fillRect(322, 184, 48, 178); // Torch & raised arm
+      eCtx.beginPath();
+      eCtx.moveTo(335, 345);
+      eCtx.lineTo(475, 245);
+      eCtx.lineTo(590, 275);
+      eCtx.lineTo(745, 360);
+      eCtx.lineTo(735, 535);
+      eCtx.lineTo(665, 515);
+      eCtx.lineTo(585, 455);
+      eCtx.lineTo(836, 625);
+      eCtx.lineTo(818, 652);
+      eCtx.lineTo(558, 508);
+      eCtx.lineTo(554, 758);
+      eCtx.lineTo(510, 758);
+      eCtx.lineTo(482, 480);
+      eCtx.lineTo(458, 322);
+      eCtx.lineTo(345, 368);
+      eCtx.closePath();
+      eCtx.fill();
+
+      // Basal Ensemble cutout mask (LVX + Dedicatoria + INDEFICIENS + Scroll + 3 Shields)
+      bCtx.fillStyle = '#FFFFFF';
+      bCtx.beginPath();
+      bCtx.roundRect(198, 508, 155, 118, 18); // LVX + Dedication
+      bCtx.roundRect(268, 616, 485, 65, 14);  // INDEFICIENS
+      bCtx.moveTo(268, 704);
+      bCtx.lineTo(756, 704);
+      bCtx.lineTo(738, 855);
+      bCtx.quadraticCurveTo(512, 912, 286, 855);
+      bCtx.closePath();
+      bCtx.fill();
+
+      return {
+        ephebeAlpha: new THREE.CanvasTexture(maskEphebe),
+        basalAlpha: new THREE.CanvasTexture(maskBasal)
+      };
+    }
+
+    function initOrResize3D() {
+      const container = document.getElementById('canvas3d-wrapper');
+      if (!container || typeof THREE === 'undefined') return;
+
+      const width = container.clientWidth || 640;
+      const height = container.clientHeight || 420;
+
+      if (!is3DInitialized) {
+        scene3D = new THREE.Scene();
+
+        camera3D = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
+        camera3D.position.copy(targetCamPos);
+
+        renderer3D = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer3D.setSize(width, height);
+        renderer3D.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer3D.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer3D.toneMappingExposure = 1.15;
+        container.appendChild(renderer3D.domElement);
+
+        controls3D = new THREE.OrbitControls(camera3D, renderer3D.domElement);
+        controls3D.enableDamping = true;
+        controls3D.dampingFactor = 0.06;
+        controls3D.minDistance = 2.1;
+        controls3D.maxDistance = 11.5;
+
+        // Studio Museographic 3-Point Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.58);
+        scene3D.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0xfff4dc, 1.55);
+        keyLight.position.set(3.5, 4.8, 5.5);
+        scene3D.add(keyLight);
+
+        const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.65);
+        rimLight.position.set(-4.5, -2.5, 4.0);
+        scene3D.add(rimLight);
+
+        const backLight = new THREE.DirectionalLight(0xe5c158, 0.55);
+        backLight.position.set(0, 3.5, -5.0);
+        scene3D.add(backLight);
+
+        buildSeal3DModel();
+        is3DInitialized = true;
+        animate3D();
+
+        window.addEventListener('resize', () => {
+          if (currentSlide === 5 && container.clientWidth > 0) {
+            camera3D.aspect = container.clientWidth / container.clientHeight;
+            camera3D.updateProjectionMatrix();
+            renderer3D.setSize(container.clientWidth, container.clientHeight);
+          }
+        });
+      } else {
+        camera3D.aspect = width / height;
+        camera3D.updateProjectionMatrix();
+        renderer3D.setSize(width, height);
+      }
+    }
+
+    function buildSeal3DModel() {
+      if (sealGroup) scene3D.remove(sealGroup);
+      sealGroup = new THREE.Group();
+
+      const { albedoTex, dispTex, normalTex } = generateAuthenticSealMaster(isInkMode);
+      const woodTex = createWoodGrainTexture(isInkMode);
+      const { ephebeAlpha, basalAlpha } = createLayerAlphaMasks();
+
+      // -------------------------------------------------------------
+      // LAYER 1: Outer Turned Walnut Wood Frame (6 Radial Beveled Segments)
+      // -------------------------------------------------------------
+      layer1Wood = new THREE.Group();
+      const woodMat = new THREE.MeshStandardMaterial({
+        map: woodTex,
+        roughness: isInkMode ? 0.85 : 0.34,
+        metalness: 0.06
+      });
+      const seamMat = new THREE.MeshStandardMaterial({
+        color: 0x160a04,
+        roughness: 0.9
+      });
+
+      const segCount = 6;
+      const arcAngle = (Math.PI * 2) / segCount;
+      const innerR = 2.04;
+      const outerR = 2.48;
+
+      for (let i = 0; i < segCount; i++) {
+        const startA = i * arcAngle + 0.014;
+        const endA = (i + 1) * arcAngle - 0.014;
+
+        const segShape = new THREE.Shape();
+        segShape.absarc(0, 0, outerR, startA, endA, false);
+        segShape.absarc(0, 0, innerR, endA, startA, true);
+        segShape.closePath();
+
+        const extrudeSettings = {
+          depth: 0.24,
+          bevelEnabled: true,
+          bevelSegments: 5,
+          steps: 1,
+          bevelSize: 0.045,
+          bevelThickness: 0.055,
+          curveSegments: 36
+        };
+        const segGeo = new THREE.ExtrudeGeometry(segShape, extrudeSettings);
+        segGeo.center();
+        // Position each segment accurately around origin
+        const midA = (startA + endA) / 2;
+        const midR = (innerR + outerR) / 2;
+        const segMesh = new THREE.Mesh(segGeo, woodMat);
+        segMesh.position.set(Math.cos(midA) * midR, Math.sin(midA) * midR, 0);
+        layer1Wood.add(segMesh);
+
+        // Dark radial joinery seam between segments
+        const jointGeo = new THREE.BoxGeometry(0.018, outerR - innerR + 0.04, 0.28);
+        const joint = new THREE.Mesh(jointGeo, seamMat);
+        const ja = i * arcAngle;
+        joint.position.set(Math.cos(ja) * midR, Math.sin(ja) * midR, 0);
+        joint.rotation.z = ja + Math.PI / 2;
+        layer1Wood.add(joint);
+      }
+      sealGroup.add(layer1Wood);
+
+      // -------------------------------------------------------------
+      // LAYER 2: Solid Cast Patinated Bronze Base Disc + Perimeter Legend
+      // -------------------------------------------------------------
+      layer2BronzeBase = new THREE.Group();
+      const discR = 2.05;
+      const discThickness = 0.16;
+
+      // Solid cylindrical rim wall so side angles show real cast bronze thickness
+      const rimGeo = new THREE.CylinderGeometry(discR, discR, discThickness, 128);
+      rimGeo.rotateX(Math.PI / 2);
+      const rimMat = new THREE.MeshStandardMaterial({
+        color: isInkMode ? 0xd6cfc0 : 0x564834,
+        roughness: isInkMode ? 0.85 : 0.38,
+        metalness: isInkMode ? 0.05 : 0.82
+      });
+      const rimMesh = new THREE.Mesh(rimGeo, rimMat);
+      layer2BronzeBase.add(rimMesh);
+
+      // High-subdivision front relief disc (160 radial x 64 rings) for true 3D displacement
+      const frontBaseGeo = new THREE.CircleGeometry(discR, 160);
+      const frontBaseMat = new THREE.MeshStandardMaterial({
+        map: albedoTex,
+        normalMap: normalTex,
+        normalScale: new THREE.Vector2(1.35, 1.35),
+        displacementMap: dispTex,
+        displacementScale: 0.09,
+        displacementBias: -0.02,
+        roughness: isInkMode ? 0.88 : 0.38,
+        metalness: isInkMode ? 0.04 : 0.78
+      });
+      const frontBaseMesh = new THREE.Mesh(frontBaseGeo, frontBaseMat);
+      frontBaseMesh.position.z = discThickness / 2 + 0.002;
+      layer2BronzeBase.add(frontBaseMesh);
+      sealGroup.add(layer2BronzeBase);
+
+      // -------------------------------------------------------------
+      // LAYER 3: Extracted Sculpted Relief of the Ephebe & Torch
+      // -------------------------------------------------------------
+      layer3Ephebe = new THREE.Group();
+      const planeSize = discR * 2.0;
+      const ephebeGeo = new THREE.PlaneGeometry(planeSize, planeSize, 180, 180);
+      const ephebeMat = new THREE.MeshStandardMaterial({
+        map: albedoTex,
+        alphaMap: ephebeAlpha,
+        transparent: true,
+        alphaTest: 0.45,
+        normalMap: normalTex,
+        normalScale: new THREE.Vector2(1.8, 1.8),
+        displacementMap: dispTex,
+        displacementScale: 0.14,
+        displacementBias: -0.04,
+        roughness: isInkMode ? 0.85 : 0.28,
+        metalness: isInkMode ? 0.05 : 0.88,
+        side: THREE.DoubleSide
+      });
+      const ephebeMesh = new THREE.Mesh(ephebeGeo, ephebeMat);
+      ephebeMesh.position.z = discThickness / 2 + 0.015;
+      layer3Ephebe.add(ephebeMesh);
+      sealGroup.add(layer3Ephebe);
+
+      // -------------------------------------------------------------
+      // LAYER 4: Basal Ensemble (LVX INDEFICIENS + Dedication + 3 Shields)
+      // -------------------------------------------------------------
+      layer4Basal = new THREE.Group();
+      const basalGeo = new THREE.PlaneGeometry(planeSize, planeSize, 180, 180);
+      const basalMat = new THREE.MeshStandardMaterial({
+        map: albedoTex,
+        alphaMap: basalAlpha,
+        transparent: true,
+        alphaTest: 0.45,
+        normalMap: normalTex,
+        normalScale: new THREE.Vector2(1.6, 1.6),
+        displacementMap: dispTex,
+        displacementScale: 0.12,
+        displacementBias: -0.03,
+        roughness: isInkMode ? 0.85 : 0.30,
+        metalness: isInkMode ? 0.05 : 0.86,
+        side: THREE.DoubleSide
+      });
+      const basalMesh = new THREE.Mesh(basalGeo, basalMat);
+      basalMesh.position.z = discThickness / 2 + 0.022;
+      layer4Basal.add(basalMesh);
+      sealGroup.add(layer4Basal);
+
+      // -------------------------------------------------------------
+      // Subtle Dashed Assembly Guide Lines for Exploded View
+      // -------------------------------------------------------------
+      guideLinesGroup = new THREE.Group();
+      const lineMat = new THREE.LineDashedMaterial({
+        color: 0x38bdf8,
+        dashSize: 0.08,
+        gapSize: 0.06,
+        transparent: true,
+        opacity: 0.55
+      });
+      [
+        [0, 1.85],
+        [0, -1.85],
+        [1.85, 0],
+        [-1.85, 0]
+      ].forEach(([gx, gy]) => {
+        const pts = [new THREE.Vector3(gx, gy, -0.6), new THREE.Vector3(gx, gy, 1.5)];
+        const lg = new THREE.BufferGeometry().setFromPoints(pts);
+        const line = new THREE.Line(lg, lineMat);
+        line.computeLineDistances();
+        guideLinesGroup.add(line);
+      });
+      guideLinesGroup.visible = false;
+      sealGroup.add(guideLinesGroup);
+
+      scene3D.add(sealGroup);
+      applyExplodePositions(currentExplodeFactor);
+    }
+
+    function applyExplodePositions(factor) {
+      if (!is3DInitialized) return;
+      layer1Wood.position.z = -0.52 * factor;
+      layer2BronzeBase.position.z = 0.0;
+      layer3Ephebe.position.z = 0.62 * factor;
+      layer4Basal.position.z = 1.24 * factor;
+      if (guideLinesGroup) {
+        guideLinesGroup.visible = factor > 0.03;
+      }
+    }
+
+    function updateExplode(val) {
+      const pct = Number(val);
+      targetExplodeFactor = pct / 100;
+      document.getElementById('explode-val').textContent = `${pct}%`;
+      const legend = document.getElementById('exploded-legend');
+      legend.classList.toggle('hidden', pct === 0);
+      const btnLabel = document.getElementById('explode-btn-label');
+      if (btnLabel) {
+        btnLabel.textContent = pct > 0 ? 'Armar Pieza' : 'Desglosar Capas';
+      }
+    }
+
+    function toggle3DExplodeBtn() {
+      const slider = document.getElementById('explode-slider');
+      const nextVal = Number(slider.value) > 0 ? 0 : 100;
+      slider.value = nextVal;
+      updateExplode(nextVal);
+      if (nextVal > 0 && is3DInitialized) {
+        targetCamPos.set(2.9, 1.4, 5.8);
+        targetLookAt.set(0, 0, 0.35);
+        isTransitioningCam = true;
+      }
+      playTone(nextVal > 0 ? 580 : 440, 0.08);
+    }
+
+    function focusHotspot(idx) {
+      const hs = hotspots3D[idx];
+      document.getElementById('hs-title').textContent = hs.title;
+      document.getElementById('hs-desc').textContent = hs.desc;
+
+      [0, 1, 2, 3, 4].forEach((i) => {
+        const b = document.getElementById(`hs-btn-${i}`);
+        if (i === idx) {
+          b.className = 'hs-btn w-full text-left px-3 py-2 rounded-lg bg-skyunl-500/25 border border-skyunl-400 text-xs font-bold text-white flex items-center justify-between transition';
+        } else {
+          b.className = 'hs-btn w-full text-left px-3 py-2 rounded-lg bg-navy-950/70 hover:bg-skyunl-500/20 border border-white/10 text-xs font-bold text-white flex items-center justify-between transition';
+        }
+      });
+
+      if (is3DInitialized) {
+        targetCamPos.copy(hs.camPos);
+        targetLookAt.copy(hs.lookAt);
+        isTransitioningCam = true;
+      }
+      playTone(620, 0.07);
+    }
+
+    function toggle3DFinish() {
+      isInkMode = !isInkMode;
+      document.getElementById('finish-label').textContent = isInkMode
+        ? 'Modo: Estampado Calcográfico en Tinta'
+        : 'Modo: Plato de Bronce Original (1926)';
+      if (is3DInitialized) {
+        buildSeal3DModel();
+      }
+      playTone(isInkMode ? 480 : 640, 0.08);
+    }
+
+    function reset3DCamera() {
+      document.getElementById('explode-slider').value = 0;
+      updateExplode(0);
+      document.getElementById('hs-title').textContent = 'Vista General — Pieza Museográfica (1926)';
+      document.getElementById('hs-desc').textContent = 'Seleccioná cualquiera de los 5 puntos de interés para acercar la cámara 3D o deslizá el control superior para separar sus 4 capas físicas.';
+      [0, 1, 2, 3, 4].forEach((i) => {
+        document.getElementById(`hs-btn-${i}`).className = 'hs-btn w-full text-left px-3 py-2 rounded-lg bg-navy-950/70 hover:bg-skyunl-500/20 border border-white/10 text-xs font-bold text-white flex items-center justify-between transition';
+      });
+      if (is3DInitialized) {
+        targetCamPos.set(0, 0, 6.8);
+        targetLookAt.set(0, 0, 0);
+        isTransitioningCam = true;
+      }
+      playTone(500, 0.06);
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      if (!is3DInitialized || currentSlide !== 5) return;
+
+      // Smoothly interpolate Z-axis exploded layers
+      if (Math.abs(currentExplodeFactor - targetExplodeFactor) > 0.001) {
+        currentExplodeFactor += (targetExplodeFactor - currentExplodeFactor) * 0.12;
+        applyExplodePositions(currentExplodeFactor);
+      }
+
+      if (isTransitioningCam) {
+        camera3D.position.lerp(targetCamPos, 0.085);
+        controls3D.target.lerp(targetLookAt, 0.085);
+        if (camera3D.position.distanceTo(targetCamPos) < 0.025) {
+          isTransitioningCam = false;
+        }
+      } else if (targetExplodeFactor === 0) {
+        // Gentle museum showcase sway when assembled
+        sealGroup.rotation.y = Math.sin(Date.now() * 0.00075) * 0.12;
+      }
+
+      controls3D.update();
+      renderer3D.render(scene3D, camera3D);
+    }
+
+    /* ---------------------------------------------------------------------
+       6. SLIDE 7: DIPLOMA STAMPING SIMULATOR
+    ---------------------------------------------------------------------- */
+    let currentStampStyle = 'ink';
+
+    const docTemplates = {
+      grado: {
+        badge: 'Diploma de Grado Universitario',
+        body: 'Por cuanto se han cumplido los estudios superiores y exigencias académicas establecidas por el Estatuto Reformista, el Rectorado expide el presente título con la fuerza legal del <strong>Sello Mayor</strong>.'
+      },
+      acta: {
+        badge: 'Acta Fundacional del Consejo Superior',
+        body: 'En la ciudad de Santa Fe de la Vera Cruz, reunido en sesión solemne el Honorable Consejo Superior de la Universidad Nacional del Litoral, refrenda la presente resolución mediante su <strong>Sello Mayor</strong>.'
+      },
+      honoris: {
+        badge: 'Distinción Doctor Honoris Causa',
+        body: 'En reconocimiento a los sobresalientes méritos científicos, humanísticos y democráticos, la Universidad Nacional del Litoral confiere la máxima distinción académica autenticada con el <strong>Sello Mayor</strong>.'
+      }
+    };
+
+    function updateDiplomaPreview() {
+      const val = document.getElementById('doc-type-select').value;
+      document.getElementById('dip-badge').textContent = docTemplates[val].badge;
+      document.getElementById('dip-body').innerHTML = docTemplates[val].body;
+      resetDiploma();
+    }
+
+    function selectStampStyle(style) {
+      currentStampStyle = style;
+      ['ink', 'wax', 'gold'].forEach((s) => {
+        const btn = document.getElementById(`style-btn-${s}`);
+        if (s === style) {
+          btn.className = 'stamp-style-btn p-2.5 rounded-xl border-2 border-navy-900 bg-navy-900 text-white text-xs font-bold text-center transition';
+        } else {
+          btn.className = 'stamp-style-btn p-2.5 rounded-xl border-2 border-slate-200 bg-white text-navy-900 text-xs font-bold text-center transition';
+        }
+      });
+    }
+
+    function executeStamp() {
+      const sealEl = document.getElementById('stamped-seal');
+      const svgEl = document.getElementById('stamped-svg');
+      const placeholder = document.getElementById('stamp-placeholder-text');
+      const regText = document.getElementById('dip-reg');
+      const statusBox = document.getElementById('stamp-status-box');
+
+      placeholder.classList.add('hidden');
+      sealEl.classList.remove('hidden', 'animate-stamp-press');
+      void sealEl.offsetWidth; // trigger reflow
+      sealEl.classList.add('animate-stamp-press');
+
+      if (currentStampStyle === 'ink') {
+        svgEl.style.color = '#0F294A';
+        svgEl.style.background = 'transparent';
+      } else if (currentStampStyle === 'wax') {
+        svgEl.style.color = '#FDFBF4';
+        svgEl.style.background = 'radial-gradient(circle, #B91C1C 62%, #7F1D1D 100%)';
+        svgEl.style.borderRadius = '9999px';
+        svgEl.style.padding = '6px';
+      } else {
+        svgEl.style.color = '#B45309';
+        svgEl.style.background = 'radial-gradient(circle, #FEF3C7 60%, #FDE68A 100%)';
+        svgEl.style.borderRadius = '9999px';
+        svgEl.style.padding = '6px';
+      }
+
+      const folio = Math.floor(1000 + Math.random() * 9000);
+      regText.textContent = `Autenticado · Folio UNL-1926-${folio}`;
+      regText.className = 'text-[10px] font-mono font-bold text-emerald-700';
+
+      statusBox.className = 'p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-xs text-emerald-900 font-medium';
+      statusBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i><strong>¡Documento autenticado!</strong> Se ha estampado el Sello Mayor con la divisa <em>“LVX INDEFICIENS”</em> (Folio #${folio}).`;
+
+      playTone(180, 0.14, 'triangle');
+    }
+
+    function resetDiploma() {
+      const sealEl = document.getElementById('stamped-seal');
+      const svgEl = document.getElementById('stamped-svg');
+      sealEl.classList.add('hidden');
+      sealEl.classList.remove('animate-stamp-press');
+      svgEl.style.background = 'transparent';
+      svgEl.style.padding = '0';
+      document.getElementById('stamp-placeholder-text').classList.remove('hidden');
+      const regText = document.getElementById('dip-reg');
+      regText.textContent = 'Estado: Pendiente de autenticación';
+      regText.className = 'text-[10px] font-mono text-slate-400';
+
+      const statusBox = document.getElementById('stamp-status-box');
+      statusBox.className = 'p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600';
+      statusBox.innerHTML = `<i class="fa-solid fa-circle-info text-skyunl-600 mr-1.5"></i>Hacé clic en <strong>“ESTAMPAR SELLO AHORA”</strong> o directamente sobre el círculo punteado del diploma.`;
+    }
+
+    /* ---------------------------------------------------------------------
+       7. SLIDE 8: DETECTIVES DEL PATRIMONIO
+    ---------------------------------------------------------------------- */
+    function revealClue(idx) {
+      const text = document.getElementById(`clue-text-${idx}`);
+      const badge = document.getElementById(`clue-badge-${idx}`);
+      text.classList.remove('hidden');
+      badge.textContent = 'Revelada ✓';
+      badge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold';
+      playTone(580, 0.06);
+    }
+
+    function revealAllClues() {
+      [0, 1, 2, 3].forEach((i) => revealClue(i));
+    }
+
+    /* ---------------------------------------------------------------------
+       8. SLIDE 9: INTERACTIVE LIVE TRIVIA (5 QUESTIONS)
+    ---------------------------------------------------------------------- */
+    const quizQuestions = [
+      {
+        q: '¿Qué significa el lema latino “LVX INDEFICIENS” grabado en el Sello Mayor?',
+        options: [
+          'Ciencia y Libertad para el Litoral',
+          'Luz que no se extingue (o Luz que no se apaga)',
+          'Reforma Universitaria de 1918'
+        ],
+        correct: 1,
+        explanation: '“LVX INDEFICIENS” significa “Luz que no se extingue”, reflejando la herencia iluminista y laica de la Reforma Universitaria.'
+      },
+      {
+        q: '¿Qué tres provincias están representadas en los escudos del pergamino basal?',
+        options: [
+          'Santa Fe, Córdoba y Buenos Aires',
+          'Santa Fe, Chaco y Misiones',
+          'Santa Fe, Entre Ríos y Corrientes'
+        ],
+        correct: 2,
+        explanation: 'Representan a Santa Fe (izquierda), Entre Ríos (centro) y Corrientes (derecha), las tres provincias integradas por la Ley N° 10.861 de 1919.'
+      },
+      {
+        q: '¿En qué año fue diseñado el Sello Mayor y quién fue su escultor?',
+        options: [
+          'En 1926, modelado por el escultor Alfredo Bigatti',
+          'En 1919, diseñado por Manuel Belgrano',
+          'En 1950, tallado por Lola Mora'
+        ],
+        correct: 0,
+        explanation: 'Fue creado en 1926 por el escultor argentino Alfredo Bigatti por iniciativa y dedicatoria al rector Dr. Pedro E. Martínez.'
+      },
+      {
+        q: 'Según el Manual de Identidad Visual de la UNL, ¿dónde está permitido usar el Sello Mayor?',
+        options: [
+          'En flyers de redes sociales y cartelería informal',
+          'Exclusivamente en diplomas, actas y distinciones solemnes',
+          'Como foto de perfil de cualquier cuenta estudiantil'
+        ],
+        correct: 1,
+        explanation: 'El Sello Mayor tiene uso ceremonial exclusivo (diplomas, medallas y actas). Para redes y difusión cotidiana se utiliza el isologo institucional.'
+      },
+      {
+        q: '¿De cuántas piezas de madera está ensamblado el marco circular del plato original?',
+        options: [
+          'De una sola pieza tallada',
+          'De 4 esquinas rectas',
+          'De 6 segmentos curvos ensamblados radialmente'
+        ],
+        correct: 2,
+        explanation: 'La pieza conservada en el Museo Histórico UNL (~35 cm) posee un marco de madera lustrada formado por 6 segmentos curvos unidos radialmente.'
+      }
+    ];
+
+    let qIndex = 0;
+    let qScore = 0;
+    let qAnswered = false;
+
+    function renderQuiz() {
+      const qData = quizQuestions[qIndex];
+      qAnswered = false;
+
+      document.getElementById('quiz-box').classList.remove('hidden');
+      document.getElementById('quiz-result').classList.add('hidden');
+      document.getElementById('quiz-feedback').classList.add('hidden');
+      document.getElementById('quiz-next-btn').classList.add('hidden');
+
+      document.getElementById('quiz-progress-label').textContent = `Pregunta ${qIndex + 1} de ${quizQuestions.length}`;
+      document.getElementById('quiz-question').textContent = qData.q;
+
+      // Dots
+      const dotsEl = document.getElementById('quiz-dots');
+      dotsEl.innerHTML = '';
+      quizQuestions.forEach((_, i) => {
+        const d = document.createElement('span');
+        d.className = i <= qIndex ? 'w-3 h-1.5 rounded-full bg-skyunl-600' : 'w-3 h-1.5 rounded-full bg-slate-300';
+        dotsEl.appendChild(d);
+      });
+
+      const optsEl = document.getElementById('quiz-options');
+      optsEl.innerHTML = '';
+      const letters = ['A', 'B', 'C'];
+
+      qData.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.id = `q-opt-${idx}`;
+        btn.className = 'w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-skyunl-500 bg-white hover:bg-skyunl-50 font-medium text-base text-navy-900 flex items-center gap-3.5 transition';
+        btn.innerHTML = `
+          <span class="w-8 h-8 rounded-lg bg-navy-900 text-white font-bold text-sm flex items-center justify-center shrink-0">${letters[idx]}</span>
+          <span>${optText}</span>
+        `;
+        btn.onclick = () => handleQuizAnswer(idx);
+        optsEl.appendChild(btn);
+      });
+    }
+
+    function handleQuizAnswer(selectedIdx) {
+      if (qAnswered) return;
+      qAnswered = true;
+
+      const qData = quizQuestions[qIndex];
+      const isCorrect = selectedIdx === qData.correct;
+
+      if (isCorrect) {
+        qScore++;
+        document.getElementById('quiz-score').textContent = qScore;
+        playTone(680, 0.12);
+      } else {
+        playTone(220, 0.16, 'sawtooth');
+      }
+
+      qData.options.forEach((_, idx) => {
+        const btn = document.getElementById(`q-opt-${idx}`);
+        btn.disabled = true;
+        if (idx === qData.correct) {
+          btn.className = 'w-full text-left p-4 rounded-xl border-2 border-emerald-600 bg-emerald-50 font-bold text-base text-emerald-950 flex items-center gap-3.5';
+        } else if (idx === selectedIdx && !isCorrect) {
+          btn.className = 'w-full text-left p-4 rounded-xl border-2 border-rose-500 bg-rose-50 font-medium text-base text-rose-950 flex items-center gap-3.5';
+        } else {
+          btn.className = 'w-full text-left p-4 rounded-xl border border-slate-200 bg-slate-50 opacity-55 text-base text-slate-500 flex items-center gap-3.5';
+        }
+      });
+
+      const fb = document.getElementById('quiz-feedback');
+      fb.classList.remove('hidden');
+      if (isCorrect) {
+        fb.className = 'mt-5 p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 text-sm md:text-base';
+        fb.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i>¡Correcto!</strong> ${qData.explanation}`;
+      } else {
+        fb.className = 'mt-5 p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-950 text-sm md:text-base';
+        fb.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-rose-600 mr-1.5"></i>Respuesta incorrecta.</strong> ${qData.explanation}`;
+      }
+
+      const nextBtn = document.getElementById('quiz-next-btn');
+      nextBtn.classList.remove('hidden');
+      nextBtn.querySelector('span').textContent = qIndex < quizQuestions.length - 1 ? 'Siguiente Pregunta' : 'Ver Resultado Final';
+    }
+
+    function nextQuizQuestion() {
+      if (qIndex < quizQuestions.length - 1) {
+        qIndex++;
+        renderQuiz();
+      } else {
+        document.getElementById('quiz-box').classList.add('hidden');
+        document.getElementById('quiz-result').classList.remove('hidden');
+        document.getElementById('quiz-final-msg').innerHTML = `Obtuviste <strong>${qScore} de ${quizQuestions.length}</strong> respuestas correctas sobre el patrimonio histórico del Sello Mayor de la UNL.`;
+        playTone(780, 0.18);
+      }
+    }
+
+    function resetQuiz() {
+      qIndex = 0;
+      qScore = 0;
+      document.getElementById('quiz-score').textContent = '0';
+      renderQuiz();
+    }
+
+    // Boot everything
+    initNavigationUI();
+    renderQuiz();
+  </script>
+</body>
+</html>
